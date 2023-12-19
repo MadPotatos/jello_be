@@ -30,6 +30,7 @@ model Project {
   name      String     @db.VarChar(50)
   descr     String?    @db.VarChar(200)
   repo      String?
+  image     String?
   createdAt DateTime   @default(now())
   updatedAt DateTime   @default(now()) @updatedAt
   User      User?      @relation(fields: [userId], references: [id], onDelete: Cascade)
