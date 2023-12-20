@@ -27,4 +27,14 @@ export class MemberService {
       isAdmin: leaderInfo.isAdmin,
     };
   }
+
+  async addAdminToProject(projectId: number, userId: number) {
+    return await this.prisma.member.create({
+      data: {
+        projectId,
+        userId,
+        isAdmin: true,
+      },
+    });
+  }
 }

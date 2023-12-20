@@ -1,5 +1,6 @@
 import { Type } from 'class-transformer';
 import { IsNumber, IsString } from 'class-validator';
+import { GetLeaderInfo } from 'src/modules/member/entities/get-leader-info.entity';
 
 export class V1Project {
   @IsNumber()
@@ -14,14 +15,8 @@ export class V1Project {
   @IsString()
   image: string;
 
-  @IsNumber()
-  leaderId: number;
-
-  @IsString()
-  leaderName: string;
-
-  @IsString()
-  leaderAvatar: string;
+  @Type(() => GetLeaderInfo)
+  leader: GetLeaderInfo;
 }
 
 export class V1ProjectsList {
