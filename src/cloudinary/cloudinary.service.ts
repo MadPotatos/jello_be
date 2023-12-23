@@ -30,7 +30,7 @@ export class CloudinaryService {
       const options = {
         ...uploadOptions,
         eager_async: true,
-        eager_notification_url: 'http://example.com/notify_endpoint', // URL endpoint để nhận thông báo khi biến đổi ảnh hoàn tất (tùy chọn)
+        eager_notification_url: 'http://example.com/notify_endpoint',
       };
 
       const upload = v2.uploader.upload_stream(options, (error, result) => {
