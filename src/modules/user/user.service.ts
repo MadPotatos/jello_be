@@ -1,4 +1,9 @@
-import { ConflictException, Injectable } from '@nestjs/common';
+import {
+  ConflictException,
+  HttpException,
+  HttpStatus,
+  Injectable,
+} from '@nestjs/common';
 import { PrismaService } from 'src/prisma.service';
 import { CreateUserDto, UpdateUserDto } from './dto/dto/user.dto';
 import { hash } from 'bcrypt';
@@ -52,12 +57,24 @@ export class UserService {
   }
 
   async updateInfo(id: number, body: UpdateUserDto): Promise<UserProfile> {
-    const user = await this.prisma.user.findUnique({
+    const existingUser = await this.prisma.user.findUnique({
       where: {
-        email: body.email,
+        id: id,
       },
     });
-    if (user) throw new ConflictException('email duplicated');
+
+    if (body.email && body.email !== existingUser.email) {
+      const userWithSameEmail = await this.prisma.user.findUnique({
+        where: {
+          email: body.email,
+        },
+      });
+
+      if (userWithSameEmail) {
+        throw new ConflictException('Email already taken');
+      }
+    }
+
     const updatedUserRaw = await this.prisma.user.update({
       where: {
         id: id,
@@ -71,6 +88,21 @@ export class UserService {
       id: updatedUserRaw.id,
       name: updatedUserRaw.name,
       email: updatedUserRaw.email,
+      avatar: updatedUserRaw.avatar,
+    };
+  }
+
+  async updateAvatar(id: number, body: any) {
+    const updatedUserRaw = await this.prisma.user.update({
+      where: {
+        id: id,
+      },
+      data: {
+        avatar: body.avatar,
+      },
+    });
+
+    return {
       avatar: updatedUserRaw.avatar,
     };
   }

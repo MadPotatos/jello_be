@@ -17,7 +17,4 @@ export class UpdateUserDto {
 
   @IsEmail()
   email: string;
-
-  @IsString()
-  avatar: string;
 }

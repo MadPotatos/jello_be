@@ -18,4 +18,10 @@ export class UserController {
   async updateUserInfo(@Param('id') id: number, @Body() body: UpdateUserDto) {
     return await this.userService.updateInfo(id, body);
   }
+
+  @UseGuards(JwtGuard)
+  @Put(':id/avatar')
+  async updateUserAvatar(@Param('id') id: number, @Body() body: any) {
+    return await this.userService.updateAvatar(id, body);
+  }
 }
