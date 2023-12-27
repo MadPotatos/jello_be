@@ -53,6 +53,8 @@ export class UserService {
       name: user.name,
       email: user.email,
       avatar: user.avatar,
+      job: user.job,
+      organization: user.organization,
     };
   }
 
@@ -89,6 +91,8 @@ export class UserService {
       name: updatedUserRaw.name,
       email: updatedUserRaw.email,
       avatar: updatedUserRaw.avatar,
+      job: updatedUserRaw.job,
+      organization: updatedUserRaw.organization,
     };
   }
 

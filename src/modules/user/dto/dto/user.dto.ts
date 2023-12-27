@@ -17,4 +17,10 @@ export class UpdateUserDto {
 
   @IsEmail()
   email: string;
+
+  @IsString()
+  job: string;
+
+  @IsString()
+  organization: string;
 }

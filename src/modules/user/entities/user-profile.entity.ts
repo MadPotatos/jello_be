@@ -12,4 +12,10 @@ export class UserProfile {
 
   @IsString()
   avatar: string;
+
+  @IsString()
+  job: string;
+
+  @IsString()
+  organization: string;
 }
