@@ -11,18 +11,20 @@ datasource db {
 }
 
 model User {
-  id        Int        @id @default(autoincrement())
-  email     String     @unique
-  name      String?
-  password  String
-  avatar    String?
-  createdAt DateTime   @default(now())
-  updatedAt DateTime   @default(now()) @updatedAt
-  members   Member[]
-  assignees Assignee[]
-  projects  Project[]
-  comments  Comment[]
-  issues    Issue[]
+  id           Int        @id @default(autoincrement())
+  email        String     @unique
+  name         String?
+  password     String
+  avatar       String?
+  job          String?
+  organization String?
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @default(now()) @updatedAt
+  members      Member[]
+  assignees    Assignee[]
+  projects     Project[]
+  comments     Comment[]
+  issues       Issue[]
 }
 
 model Project {
