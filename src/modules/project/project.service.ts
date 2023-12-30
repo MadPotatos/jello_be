@@ -11,14 +11,14 @@ export class ProjectService {
     private member: MemberService,
   ) {}
 
-  async findByUserId(userId: number): Promise<V1ProjectsList> {
+  async getProjectsByUserId(userId: number): Promise<V1ProjectsList> {
     const projectsRaw = await this.prisma.project.findMany({
       where: { members: { some: { userId } } },
       orderBy: { createdAt: 'desc' },
     });
     const projects: V1Project[] = await Promise.all(
       projectsRaw.map(async (project) => {
-        const leader = await this.member.findLeaderInfoByProjectId(project.id);
+        const leader = await this.member.getLeaderByProjectId(project.id);
         return {
           id: project.id,
           name: project.name,
@@ -34,7 +34,7 @@ export class ProjectService {
     };
   }
 
-  async findById(id: number) {
+  async getById(id: number) {
     return await this.prisma.project.findUnique({
       where: { id },
     });

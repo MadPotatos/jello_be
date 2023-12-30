@@ -1,14 +1,12 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma.service';
-import { GetLeaderInfo } from './entities/get-leader-info.entity';
+import { GetMember, GetMemberList } from './entities/get-member.entity';
 
 @Injectable()
 export class MemberService {
   constructor(private prisma: PrismaService) {}
 
-  async findLeaderInfoByProjectId(
-    projectId: number,
-  ): Promise<GetLeaderInfo | null> {
+  async getLeaderByProjectId(projectId: number): Promise<GetMember | null> {
     const leaderInfo = await this.prisma.member.findFirst({
       where: { projectId, isAdmin: true },
       include: { User: true },
@@ -36,5 +34,24 @@ export class MemberService {
         isAdmin: true,
       },
     });
+  }
+
+  async getMembersByProjectId(projectId: number): Promise<GetMemberList> {
+    const members = await this.prisma.member.findMany({
+      where: { projectId },
+      include: { User: true },
+    });
+
+    return {
+      members: members.map((member) => ({
+        projectId: member.projectId,
+        userId: member.userId,
+        name: member.User.name,
+        email: member.User.email,
+        avatar: member.User.avatar,
+        isAdmin: member.isAdmin,
+      })),
+      total: members.length,
+    };
   }
 }

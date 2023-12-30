@@ -12,12 +12,12 @@ export class ProjectController {
   async getProjectsByUserId(
     @Param('userId') userId: number,
   ): Promise<V1ProjectsList> {
-    return await this.projectService.findByUserId(userId);
+    return await this.projectService.getProjectsByUserId(userId);
   }
 
   @Get(':id')
   async getProjectById(@Param('id') id: number) {
-    return await this.projectService.findById(id);
+    return await this.projectService.getById(id);
   }
 
   @Post()
