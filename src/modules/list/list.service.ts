@@ -1,9 +1,13 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma.service';
+import { UtilService } from 'src/util.service';
 
 @Injectable()
 export class ListService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly util: UtilService,
+  ) {}
 
   async getListsInProject(projectId: number) {
     try {
@@ -50,18 +54,17 @@ export class ListService {
     }
   }
 
-  //   async reorderLists(body: any) {
-  //     try {
-  //       const { id, order, newOrder, projectId } = body;
-  //       await sameContainerReorder(
-  //         { id, order, newOrder },
-  //         { projectId },
-  //         this.prisma.list,
-  //       );
-  //       return 'Successfully reordered lists';
-  //     } catch (err) {
-  //       console.log(err);
-  //       // Handle errors appropriately
-  //     }
-  //   }
+  async reorderLists(body: any) {
+    try {
+      const { id, order, newOrder, projectId } = body;
+      await this.util.sameContainerReorder(
+        { id, order, newOrder },
+        { projectId },
+        this.prisma.list,
+      );
+      return 'Successfully reordered lists';
+    } catch (err) {
+      console.log(err);
+    }
+  }
 }
