@@ -47,10 +47,35 @@ export class ListService {
 
   async deleteList(id: number) {
     try {
-      const list = await this.prisma.list.delete({ where: { id: +id } });
-      return list;
+      const listToDelete = await this.prisma.list.findUnique({
+        where: { id: +id },
+        select: { order: true },
+      });
+
+      if (!listToDelete) {
+        throw new Error('List not found');
+      }
+
+      const orderToDelete = listToDelete.order;
+
+      await this.prisma.list.delete({ where: { id: +id } });
+      await this.prisma.list.updateMany({
+        where: {
+          order: {
+            gte: orderToDelete,
+          },
+        },
+        data: {
+          order: {
+            decrement: 1,
+          },
+        },
+      });
+
+      return { success: true };
     } catch (err) {
-      console.log(err);
+      console.error(err);
+      return { success: false, error: 'Failed to delete list' };
     }
   }
 
