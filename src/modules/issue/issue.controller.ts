@@ -9,6 +9,7 @@ import {
   Query,
 } from '@nestjs/common';
 import { IssueService } from './issue.service';
+import { PostIssueDto } from './dto/create-issue.dto';
 
 @Controller('issues')
 export class IssueController {
@@ -23,7 +24,7 @@ export class IssueController {
   }
 
   @Post()
-  async createIssue(@Body() body: any) {
+  async createIssue(@Body() body: PostIssueDto) {
     return this.issueService.createIssue(body);
   }
 

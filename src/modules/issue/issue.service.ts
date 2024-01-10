@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../../prisma.service'; // Adjust the path accordingly
 import { UtilService } from '../../util.service'; // Adjust the path accordingly
+import { PostIssueDto } from './dto/create-issue.dto';
 
 @Injectable()
 export class IssueService {
@@ -22,6 +23,10 @@ export class IssueService {
             orderBy: { order: 'asc' },
             include: {
               assignees: {
+                select: {
+                  userId: true,
+                  User: { select: { name: true, avatar: true } },
+                },
                 orderBy: { createdAt: 'asc' },
               },
               _count: {
@@ -44,22 +49,17 @@ export class IssueService {
     }
   }
 
-  async createIssue(data: any) {
+  async createIssue(body: PostIssueDto) {
     try {
-      const { projectId, listId, assignees, ...restData } = data;
       const { _count: order } = await this.prisma.issue.aggregate({
-        where: { listId },
+        where: { listId: body.listId },
         _count: true,
       });
-      const { id: issueId } = await this.prisma.issue.create({
-        data: { ...restData, order: order + 1, listId },
+      const issue = await this.prisma.issue.create({
+        data: { ...body, order: order + 1 },
       });
 
-      await this.prisma.assignee.createMany({
-        data: assignees.map((userId) => ({ issueId, userId, projectId })),
-      });
-
-      return { msg: 'issue is created' };
+      return issue;
     } catch (err) {
       console.log(err);
     }
