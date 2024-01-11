@@ -7,9 +7,11 @@ import {
   Body,
   Param,
   Query,
+  UseGuards,
 } from '@nestjs/common';
 import { IssueService } from './issue.service';
 import { PostIssueDto } from './dto/create-issue.dto';
+import { JwtGuard } from '../auth/guards/jwt.guard';
 
 @Controller('issues')
 export class IssueController {
@@ -23,6 +25,7 @@ export class IssueController {
     return this.issueService.getIssuesInProject(projectId, userId);
   }
 
+  @UseGuards(JwtGuard)
   @Post()
   async createIssue(@Body() body: PostIssueDto) {
     return this.issueService.createIssue(body);
