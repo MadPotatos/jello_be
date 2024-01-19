@@ -13,7 +13,7 @@ export class MemberController {
     return await this.memberService.getLeaderByProjectId(projectId);
   }
 
-  @Get('/list/:projectId')
+  @Get('/:projectId')
   async getMembersByProjectId(
     @Param('projectId') projectId: number,
   ): Promise<GetMemberList> {

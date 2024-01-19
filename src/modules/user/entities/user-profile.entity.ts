@@ -1,3 +1,4 @@
+import { Type } from 'class-transformer';
 import { IsEmail, IsNumber, IsString } from 'class-validator';
 
 export class UserProfile {
@@ -18,4 +19,12 @@ export class UserProfile {
 
   @IsString()
   organization: string;
+}
+
+export class GetUserByName {
+  @Type(() => UserProfile)
+  users: UserProfile[];
+
+  @IsNumber()
+  total: number;
 }

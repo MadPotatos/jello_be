@@ -7,7 +7,7 @@ import {
 import { PrismaService } from 'src/prisma.service';
 import { CreateUserDto, UpdateUserDto } from './dto/dto/user.dto';
 import { hash } from 'bcrypt';
-import { UserProfile } from './entities/user-profile.entity';
+import { GetUserByName, UserProfile } from './entities/user-profile.entity';
 
 @Injectable()
 export class UserService {
@@ -108,6 +108,28 @@ export class UserService {
 
     return {
       avatar: updatedUserRaw.avatar,
+    };
+  }
+
+  async getUserByNames(name: string): Promise<GetUserByName> {
+    const users = await this.prisma.user.findMany({
+      where: {
+        name: {
+          contains: name,
+        },
+      },
+    });
+
+    return {
+      users: users.map((user) => ({
+        id: user.id,
+        name: user.name,
+        email: user.email,
+        avatar: user.avatar,
+        job: user.job,
+        organization: user.organization,
+      })),
+      total: users.length,
     };
   }
 }

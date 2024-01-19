@@ -59,4 +59,38 @@ export class ProjectService {
       message: 'Project created successfully',
     };
   }
+
+  async updateProject(id: number, body: any) {
+    const project = await this.prisma.project.update({
+      where: { id },
+      data: {
+        name: body.name,
+        descr: body.descr,
+        repo: body.repo,
+      },
+    });
+    if (!project) {
+      return null;
+    }
+    return {
+      project,
+      message: 'Project updated successfully',
+    };
+  }
+
+  async updateImage(id: number, body: any) {
+    const project = await this.prisma.project.update({
+      where: { id },
+      data: {
+        image: body.image,
+      },
+    });
+    if (!project) {
+      return null;
+    }
+    return {
+      project,
+      message: 'Project updated successfully',
+    };
+  }
 }
