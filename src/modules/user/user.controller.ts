@@ -1,4 +1,12 @@
-import { Body, Controller, Get, Param, Put, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  Put,
+  Query,
+  UseGuards,
+} from '@nestjs/common';
 import { UserService } from './user.service';
 import { JwtGuard } from 'src/modules/auth/guards/jwt.guard';
 import { UpdateUserDto } from './dto/dto/user.dto';
@@ -23,5 +31,10 @@ export class UserController {
   @Put(':id/avatar')
   async updateUserAvatar(@Param('id') id: number, @Body() body: any) {
     return await this.userService.updateAvatar(id, body);
+  }
+
+  @Get('search')
+  async getUserByName(@Query() name: string) {
+    return await this.userService.getUserByNames(name);
   }
 }

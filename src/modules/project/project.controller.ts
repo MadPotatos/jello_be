@@ -1,4 +1,12 @@
-import { Body, Controller, Get, Param, Post, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  Post,
+  Put,
+  UseGuards,
+} from '@nestjs/common';
 import { ProjectService } from './project.service';
 import { V1ProjectsList } from './entities/get-projects-list.entity';
 import { JwtGuard } from '../auth/guards/jwt.guard';
@@ -12,17 +20,29 @@ export class ProjectController {
   async getProjectsByUserId(
     @Param('userId') userId: number,
   ): Promise<V1ProjectsList> {
-    return await this.projectService.findByUserId(userId);
+    return await this.projectService.getProjectsByUserId(userId);
   }
 
   @Get(':id')
   async getProjectById(@Param('id') id: number) {
-    return await this.projectService.findById(id);
+    return await this.projectService.getById(id);
   }
 
   @Post()
   @UseGuards(JwtGuard)
   async createProject(@Body() body: PostProjectDto) {
     return await this.projectService.createProject(body);
+  }
+
+  @Put(':id')
+  @UseGuards(JwtGuard)
+  async updateProject(@Param('id') id: number, @Body() body: any) {
+    return await this.projectService.updateProject(id, body);
+  }
+
+  @Put(':id/image')
+  @UseGuards(JwtGuard)
+  async updateProjectImage(@Param('id') id: number, @Body() body: any) {
+    return await this.projectService.updateImage(id, body);
   }
 }

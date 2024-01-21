@@ -11,14 +11,14 @@ export class ProjectService {
     private member: MemberService,
   ) {}
 
-  async findByUserId(userId: number): Promise<V1ProjectsList> {
+  async getProjectsByUserId(userId: number): Promise<V1ProjectsList> {
     const projectsRaw = await this.prisma.project.findMany({
       where: { members: { some: { userId } } },
       orderBy: { createdAt: 'desc' },
     });
     const projects: V1Project[] = await Promise.all(
       projectsRaw.map(async (project) => {
-        const leader = await this.member.findLeaderInfoByProjectId(project.id);
+        const leader = await this.member.getLeaderByProjectId(project.id);
         return {
           id: project.id,
           name: project.name,
@@ -34,7 +34,7 @@ export class ProjectService {
     };
   }
 
-  async findById(id: number) {
+  async getById(id: number) {
     return await this.prisma.project.findUnique({
       where: { id },
     });
@@ -57,6 +57,40 @@ export class ProjectService {
     return {
       project,
       message: 'Project created successfully',
+    };
+  }
+
+  async updateProject(id: number, body: any) {
+    const project = await this.prisma.project.update({
+      where: { id },
+      data: {
+        name: body.name,
+        descr: body.descr,
+        repo: body.repo,
+      },
+    });
+    if (!project) {
+      return null;
+    }
+    return {
+      project,
+      message: 'Project updated successfully',
+    };
+  }
+
+  async updateImage(id: number, body: any) {
+    const project = await this.prisma.project.update({
+      where: { id },
+      data: {
+        image: body.image,
+      },
+    });
+    if (!project) {
+      return null;
+    }
+    return {
+      project,
+      message: 'Project updated successfully',
     };
   }
 }

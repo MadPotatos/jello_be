@@ -1,6 +1,7 @@
+import { Type } from 'class-transformer';
 import { IsBoolean, IsEmail, IsNumber, IsString } from 'class-validator';
 
-export class GetLeaderInfo {
+export class GetMember {
   @IsNumber()
   userId: number;
 
@@ -19,4 +20,12 @@ export class GetLeaderInfo {
 
   @IsBoolean()
   isAdmin: boolean;
+}
+
+export class GetMemberList {
+  @Type(() => GetMember)
+  members: GetMember[];
+
+  @IsNumber()
+  total: number;
 }
