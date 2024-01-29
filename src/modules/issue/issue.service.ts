@@ -82,20 +82,14 @@ export class IssueService {
           break;
         case 'addAssignee':
           await Promise.all([
-            this.prisma.assignee.create({
-              data: { issueId: id, userId: value, projectId },
+            this.prisma.assignee.deleteMany({ where: { issueId: id } }), // Remove all existing assignees
+            this.prisma.assignee.createMany({
+              data: value.map((userId) => ({ issueId: id, userId, projectId })), // Create new assignees based on the provided array
             }),
-            this.updatedAt(id),
           ]);
+          await this.updatedAt(id);
           break;
-        case 'removeAssignee':
-          await Promise.all([
-            this.prisma.assignee.deleteMany({
-              where: { AND: { issueId: id, userId: value } },
-            }),
-            this.updatedAt(id),
-          ]);
-          break;
+
         default:
           await this.prisma.issue.update({
             where: { id },
