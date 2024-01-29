@@ -9,7 +9,7 @@ export class CommentService {
     try {
       const cmts = await this.prisma.comment.findMany({
         where: { issueId: +issueId },
-        include: { User: { select: { name: true } } },
+        include: { User: { select: { name: true, avatar: true } } },
       });
       const data = cmts.map(({ User, ...d }) => ({ ...d, ...User }));
       return data;
@@ -21,7 +21,11 @@ export class CommentService {
   async createComment(data: any) {
     try {
       const cmt = await this.prisma.comment.create({ data });
-      return cmt;
+      const User = await this.prisma.user.findUnique({
+        where: { id: cmt.userId },
+        select: { name: true, avatar: true },
+      });
+      return { ...cmt, ...User };
     } catch (err) {
       console.log(err);
     }
