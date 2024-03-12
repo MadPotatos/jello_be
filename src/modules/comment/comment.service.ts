@@ -1,24 +1,39 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../../prisma.service';
+import { PostCommentDto } from './dto/create-comment.dto';
+import { V1Comment } from './entities/get-comments-list.entity';
 
 @Injectable()
 export class CommentService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async getComments(issueId: number) {
+  async getComments(issueId: number): Promise<V1Comment[]> {
     try {
       const cmts = await this.prisma.comment.findMany({
         where: { issueId: +issueId },
         include: { User: { select: { name: true, avatar: true } } },
       });
-      const data = cmts.map(({ User, ...d }) => ({ ...d, ...User }));
-      return data;
+      const rawData = cmts.map(({ User, ...d }) => ({ ...d, ...User }));
+
+      const comments: V1Comment[] = await Promise.all(
+        rawData.map(async (cmt) => {
+          return {
+            id: cmt.id,
+            descr: cmt.descr,
+            createdAt: cmt.createdAt,
+            userId: cmt.userId,
+            name: cmt.name,
+            avatar: cmt.avatar,
+          };
+        }),
+      );
+      return comments;
     } catch (err) {
       console.log(err);
     }
   }
 
-  async createComment(data: any) {
+  async createComment(data: PostCommentDto) {
     try {
       const cmt = await this.prisma.comment.create({ data });
       const User = await this.prisma.user.findUnique({
