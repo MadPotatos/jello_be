@@ -36,6 +36,7 @@ export class IssueController {
     return this.issueService.updateIssue(id, body);
   }
 
+  @UseGuards(JwtGuard)
   @Delete(':id')
   async deleteIssue(@Param('id') id: number) {
     return this.issueService.deleteIssue(id);

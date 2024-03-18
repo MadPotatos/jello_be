@@ -58,8 +58,7 @@ export class IssueService {
       const issue = await this.prisma.issue.create({
         data: { ...body, order: order + 1 },
       });
-
-      return issue;
+      return { ...issue, assignees: [], comments: 0 };
     } catch (err) {
       console.log(err);
     }
@@ -103,15 +102,6 @@ export class IssueService {
     }
   }
 
-  async deleteIssue(id: number) {
-    try {
-      const issue = await this.prisma.issue.delete({ where: { id: +id } });
-      return issue;
-    } catch (err) {
-      console.log(err);
-    }
-  }
-
   async reorderIssues(body: any) {
     try {
       const {
@@ -139,5 +129,41 @@ export class IssueService {
       where: { id },
       data: { updatedAt: new Date(Date.now()).toISOString() },
     });
+  }
+
+  async deleteIssue(id: number) {
+    try {
+      const issueToDelete = await this.prisma.issue.findUnique({
+        where: { id: +id },
+        select: { order: true, listId: true },
+      });
+
+      if (!issueToDelete) {
+        throw new Error('Issue not found');
+      }
+
+      const orderToDelete = issueToDelete.order;
+      const listId = issueToDelete.listId;
+
+      await this.prisma.issue.delete({ where: { id: +id } });
+      await this.prisma.issue.updateMany({
+        where: {
+          order: {
+            gte: orderToDelete,
+          },
+          listId: listId,
+        },
+        data: {
+          order: {
+            decrement: 1,
+          },
+        },
+      });
+
+      return { success: true };
+    } catch (err) {
+      console.error(err);
+      return { success: false, error: 'Failed to delete issue' };
+    }
   }
 }
