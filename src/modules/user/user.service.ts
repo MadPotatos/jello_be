@@ -111,7 +111,7 @@ export class UserService {
     };
   }
 
-  async getUserByNames(name: string): Promise<GetUserByName> {
+  async getUserByNames(name: string): Promise<any> {
     const users = await this.prisma.user.findMany({
       where: {
         name: {

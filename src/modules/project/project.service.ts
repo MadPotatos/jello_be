@@ -13,7 +13,31 @@ export class ProjectService {
 
   async getProjectsByUserId(userId: number): Promise<V1ProjectsList> {
     const projectsRaw = await this.prisma.project.findMany({
-      where: { members: { some: { userId } } },
+      where: { members: { some: { userId } }, isDeleted: false },
+      orderBy: { createdAt: 'desc' },
+    });
+    const projects: V1Project[] = await Promise.all(
+      projectsRaw.map(async (project) => {
+        const leader = await this.member.getLeaderByProjectId(project.id);
+        return {
+          id: project.id,
+          name: project.name,
+          description: project.descr,
+          image: project.image,
+          leader,
+        };
+      }),
+    );
+    return {
+      projects,
+      total: projects.length,
+    };
+  }
+
+  async getDeletedProjectsByUserId(userId: number): Promise<V1ProjectsList> {
+    const projectsRaw = await this.prisma.project.findMany({
+      where: { members: { some: { userId, isAdmin: true } }, isDeleted: true },
+
       orderBy: { createdAt: 'desc' },
     });
     const projects: V1Project[] = await Promise.all(
@@ -91,6 +115,34 @@ export class ProjectService {
     return {
       project,
       message: 'Project updated successfully',
+    };
+  }
+
+  async deleteProject(id: number) {
+    // set isDeleted = true
+    const project = await this.prisma.project.update({
+      where: { id },
+      data: {
+        isDeleted: true,
+      },
+    });
+    return {
+      project,
+      message: 'Project deleted successfully',
+    };
+  }
+
+  async restoreProject(id: number) {
+    // set isDeleted = false
+    const project = await this.prisma.project.update({
+      where: { id },
+      data: {
+        isDeleted: false,
+      },
+    });
+    return {
+      project,
+      message: 'Project restored successfully',
     };
   }
 }

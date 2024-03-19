@@ -15,8 +15,7 @@ import { UpdateUserDto } from './dto/dto/user.dto';
 export class UserController {
   constructor(private userService: UserService) {}
 
-  //@UseGuards(JwtGuard)
-  @Get(':id')
+  @Get('/profile/:id')
   async getUserProfile(@Param('id') id: number) {
     return await this.userService.findProfile(id);
   }
@@ -33,8 +32,8 @@ export class UserController {
     return await this.userService.updateAvatar(id, body);
   }
 
-  @Get('search')
-  async getUserByName(@Query() name: string) {
+  @Get('searchbyName')
+  async getUserByName(@Query('name') name: string) {
     return await this.userService.getUserByNames(name);
   }
 }

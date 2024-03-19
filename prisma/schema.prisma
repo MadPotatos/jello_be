@@ -40,6 +40,7 @@ model Project {
   lists     List[]
   members   Member[]
   assignees Assignee[]
+  isDeleted Boolean    @default(false)
 }
 
 model Member {

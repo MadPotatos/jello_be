@@ -49,7 +49,7 @@ export class ListService {
     try {
       const listToDelete = await this.prisma.list.findUnique({
         where: { id: +id },
-        select: { order: true },
+        select: { order: true, projectId: true },
       });
 
       if (!listToDelete) {
@@ -57,6 +57,7 @@ export class ListService {
       }
 
       const orderToDelete = listToDelete.order;
+      const projectId = listToDelete.projectId;
 
       await this.prisma.list.delete({ where: { id: +id } });
       await this.prisma.list.updateMany({
@@ -64,6 +65,7 @@ export class ListService {
           order: {
             gte: orderToDelete,
           },
+          projectId: projectId,
         },
         data: {
           order: {

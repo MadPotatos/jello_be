@@ -23,6 +23,13 @@ export class ProjectController {
     return await this.projectService.getProjectsByUserId(userId);
   }
 
+  @Get('/deleted/:userId')
+  async getDeletedProjectsByUserId(
+    @Param('userId') userId: number,
+  ): Promise<V1ProjectsList> {
+    return await this.projectService.getDeletedProjectsByUserId(userId);
+  }
+
   @Get(':id')
   async getProjectById(@Param('id') id: number) {
     return await this.projectService.getById(id);
@@ -44,5 +51,17 @@ export class ProjectController {
   @UseGuards(JwtGuard)
   async updateProjectImage(@Param('id') id: number, @Body() body: any) {
     return await this.projectService.updateImage(id, body);
+  }
+
+  @Put('delete/:id')
+  @UseGuards(JwtGuard)
+  async deleteProject(@Param('id') id: number) {
+    return await this.projectService.deleteProject(id);
+  }
+
+  @Put('restore/:id')
+  @UseGuards(JwtGuard)
+  async restoreProject(@Param('id') id: number) {
+    return await this.projectService.restoreProject(id);
   }
 }

@@ -45,7 +45,7 @@ export class AuthService {
       const { password, ...result } = user;
       return result;
     }
-    throw new UnauthorizedException();
+    throw new UnauthorizedException('Incorrect email or password');
   }
 
   async refreshToken(user: any) {

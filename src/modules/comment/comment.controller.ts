@@ -1,5 +1,15 @@
-import { Controller, Get, Post, Delete, Param, Body } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Delete,
+  Param,
+  Body,
+  UseGuards,
+} from '@nestjs/common';
 import { CommentService } from './comment.service';
+import { JwtGuard } from '../auth/guards/jwt.guard';
+import { PostCommentDto } from './dto/create-comment.dto';
 
 @Controller('comments')
 export class CommentController {
@@ -10,11 +20,13 @@ export class CommentController {
     return this.commentService.getComments(issueId);
   }
 
+  @UseGuards(JwtGuard)
   @Post()
-  async createComment(@Body() body: any) {
+  async createComment(@Body() body: PostCommentDto) {
     return this.commentService.createComment(body);
   }
 
+  @UseGuards(JwtGuard)
   @Delete(':id')
   async deleteComment(@Param('id') id: number) {
     return this.commentService.deleteComment(id);
