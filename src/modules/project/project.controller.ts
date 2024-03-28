@@ -11,6 +11,7 @@ import { ProjectService } from './project.service';
 import { V1ProjectsList } from './entities/get-projects-list.entity';
 import { JwtGuard } from '../auth/guards/jwt.guard';
 import { PostProjectDto } from './dto/post-project.dto';
+import { V1ProjectDetail } from './entities/get-project-detail.entity';
 
 @Controller('project')
 export class ProjectController {
@@ -31,7 +32,7 @@ export class ProjectController {
   }
 
   @Get(':id')
-  async getProjectById(@Param('id') id: number) {
+  async getProjectById(@Param('id') id: number): Promise<V1ProjectDetail> {
     return await this.projectService.getById(id);
   }
 

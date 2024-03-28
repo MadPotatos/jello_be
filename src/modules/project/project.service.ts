@@ -3,6 +3,7 @@ import { PrismaService } from 'src/prisma.service';
 import { MemberService } from '../member/member.service';
 import { V1Project, V1ProjectsList } from './entities/get-projects-list.entity';
 import { PostProjectDto } from './dto/post-project.dto';
+import { V1ProjectDetail } from './entities/get-project-detail.entity';
 
 @Injectable()
 export class ProjectService {
@@ -58,10 +59,22 @@ export class ProjectService {
     };
   }
 
-  async getById(id: number) {
-    return await this.prisma.project.findUnique({
+  async getById(id: number): Promise<V1ProjectDetail> {
+    const rawData = await this.prisma.project.findUnique({
       where: { id },
     });
+    if (!rawData) {
+      return null;
+    }
+    return {
+      id: rawData.id,
+      name: rawData.name,
+      description: rawData.descr,
+      repo: rawData.repo,
+      image: rawData.image,
+      createdAt: rawData.createdAt,
+      updatedAt: rawData.updatedAt,
+    };
   }
 
   async createProject(body: PostProjectDto) {
