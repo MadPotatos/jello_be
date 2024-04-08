@@ -11,7 +11,7 @@ import { CloudinaryModule } from './cloudinary/cloudinary.module';
 import { ListModule } from './modules/list/list.module';
 import { IssueModule } from './modules/issue/issue.module';
 import { CommentModule } from './modules/comment/comment.module';
-import { PullRequestModule } from './modules/pull-request/pull-request.module';
+import { RepositoryModule } from './modules/repo/repo.module';
 
 @Module({
   imports: [
@@ -26,7 +26,7 @@ import { PullRequestModule } from './modules/pull-request/pull-request.module';
     CommentModule,
     AuthModule,
     CloudinaryModule,
-    PullRequestModule,
+    RepositoryModule,
   ],
   controllers: [AppController],
   providers: [AppService, PrismaService],

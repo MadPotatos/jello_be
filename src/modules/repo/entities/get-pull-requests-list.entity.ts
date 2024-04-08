@@ -22,11 +22,3 @@ export class V1PullRequest {
   @IsString()
   base: string;
 }
-
-export class V1PullRequestList {
-  @IsString()
-  pullRequests: V1PullRequest[];
-
-  @IsNumber()
-  total: number;
-}

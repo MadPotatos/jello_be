@@ -56,7 +56,7 @@ export class IssueService {
         _count: true,
       });
       const issue = await this.prisma.issue.create({
-        data: { ...body, order: order + 1 },
+        data: { ...body, order: Number(order) + 1 },
       });
       return { ...issue, assignees: [], comments: 0 };
     } catch (err) {
@@ -76,7 +76,7 @@ export class IssueService {
           });
           await this.prisma.issue.update({
             where: { id },
-            data: { [type]: value, order: order + 1 },
+            data: { [type]: value, order: Number(order) + 1 },
           });
           break;
         case 'addAssignee':

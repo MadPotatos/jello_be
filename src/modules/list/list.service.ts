@@ -28,7 +28,7 @@ export class ListService {
         _count: true,
       });
       const list = await this.prisma.list.create({
-        data: { projectId, order: order + 1 },
+        data: { projectId, order: Number(order) + 1 },
       });
       return list;
     } catch (err) {

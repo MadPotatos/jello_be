@@ -1,13 +1,14 @@
 import { ConflictException, Injectable } from '@nestjs/common';
 import { Octokit } from '@octokit/rest';
-import { V1PullRequestList } from './entities/get-pull-requests-list.entity';
+import { V1PullRequest } from './entities/get-pull-requests-list.entity';
 import { PrismaService } from 'src/prisma.service';
+import { V1RepoDetail } from './entities/get-repo-detail.entity';
 
 @Injectable()
-export class PullRequestService {
+export class RepositoryService {
   constructor(private prisma: PrismaService) {}
 
-  async getPullRequests(id: number): Promise<V1PullRequestList> {
+  async getPullRequests(id: number): Promise<V1PullRequest[]> {
     const octokit = new Octokit({
       auth: process.env.GITHUB_ACCESS_TOKEN,
     });
@@ -38,9 +39,45 @@ export class PullRequestService {
         head: pullRequest.head.label,
         base: pullRequest.base.label,
       }));
-      return { pullRequests, total: pullRequests.length };
+      return pullRequests;
     } catch (error) {
-      throw new Error('Failed to fetch pull requests');
+      console.log(error);
+    }
+  }
+
+  async getRepositoryInfo(id: number): Promise<V1RepoDetail> {
+    const project = await this.prisma.project.findUnique({
+      where: { id },
+      select: { repo: true },
+    });
+
+    if (!project) {
+      throw new Error('Project not found');
+    }
+
+    const { owner, repo } = await this.getOwnerAndRepoFromUrl(project.repo);
+
+    try {
+      const octokit = new Octokit({
+        auth: process.env.GITHUB_ACCESS_TOKEN,
+      });
+
+      const repoInfo = await octokit.repos.get({
+        owner,
+        repo,
+      });
+
+      return {
+        name: repoInfo.data.name,
+        owner: repoInfo.data.owner.login,
+        description: repoInfo.data.description,
+        url: repoInfo.data.html_url,
+        language: repoInfo.data.language,
+        forks: repoInfo.data.forks_count,
+        stars: repoInfo.data.stargazers_count,
+      };
+    } catch (error) {
+      console.log(error);
     }
   }
 
