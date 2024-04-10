@@ -11,6 +11,7 @@ import { CloudinaryModule } from './cloudinary/cloudinary.module';
 import { ListModule } from './modules/list/list.module';
 import { IssueModule } from './modules/issue/issue.module';
 import { CommentModule } from './modules/comment/comment.module';
+import { RepositoryModule } from './modules/repo/repo.module';
 
 @Module({
   imports: [
@@ -25,6 +26,7 @@ import { CommentModule } from './modules/comment/comment.module';
     CommentModule,
     AuthModule,
     CloudinaryModule,
+    RepositoryModule,
   ],
   controllers: [AppController],
   providers: [AppService, PrismaService],
