@@ -40,6 +40,7 @@ model Project {
   lists     List[]
   members   Member[]
   assignees Assignee[]
+  sprints   Sprint[]
   isDeleted Boolean    @default(false)
 }
 
@@ -64,6 +65,20 @@ model List {
   projectId Int
 }
 
+model Sprint {
+  id        Int          @id @default(autoincrement())
+  name      String       @db.VarChar(50)
+  startDate DateTime?
+  endDate   DateTime?
+  goal      String?      @db.VarChar(200)
+  status    SprintStatus
+  createdAt DateTime     @default(now())
+  updatedAt DateTime     @default(now()) @updatedAt
+  Project   Project?     @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  projectId Int
+  issues    Issue[]
+}
+
 model Issue {
   id         Int        @id @default(autoincrement())
   order      Int
@@ -74,7 +89,9 @@ model Issue {
   createdAt  DateTime   @default(now())
   updatedAt  DateTime   @default(now()) @updatedAt
   List       List?      @relation(fields: [listId], references: [id], onDelete: Cascade)
-  listId     Int
+  listId     Int?
+  Sprint     Sprint?    @relation(fields: [sprintId], references: [id], onDelete: Cascade)
+  sprintId   Int?
   User       User?      @relation(fields: [reporterId], references: [id], onDelete: Cascade)
   reporterId Int
   comments   Comment[]
@@ -100,4 +117,10 @@ model Comment {
   issueId   Int
   User      User?    @relation(fields: [userId], references: [id])
   userId    Int
+}
+
+enum SprintStatus {
+  CREATED
+  IN_PROGRESS
+  COMPLETED
 }

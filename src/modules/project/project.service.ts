@@ -91,6 +91,14 @@ export class ProjectService {
     if (!project) {
       return null;
     }
+    await this.prisma.list.createMany({
+      data: [
+        { name: 'To Do', projectId: project.id, order: 1 },
+        { name: 'In Progress', projectId: project.id, order: 2 },
+        { name: 'Done', projectId: project.id, order: 3 },
+      ],
+    });
+
     return {
       project,
       message: 'Project created successfully',
