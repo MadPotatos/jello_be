@@ -11,13 +11,16 @@ export class UtilService {
       where: {
         ...whereConfig,
         AND: [
-          { order: { [ste ? 'gt' : 'lt']: order } },
-          { order: { [ste ? 'lte' : 'gte']: newOrder } },
+          { listOrder: { [ste ? 'gt' : 'lt']: order } },
+          { listOrder: { [ste ? 'lte' : 'gte']: newOrder } },
         ],
       },
-      data: { order: { [ste ? 'decrement' : 'increment']: 1 } },
+      data: { listOrder: { [ste ? 'decrement' : 'increment']: 1 } },
     });
-    const dragged = model.update({ where: { id }, data: { order: newOrder } });
+    const dragged = model.update({
+      where: { id },
+      data: { listOrder: newOrder },
+    });
     return Promise.all([toBeMoved, dragged]);
   }
 
@@ -45,7 +48,7 @@ export class UtilService {
 
     const toBeDeleted = await model.delete({ where: { id } });
     await model.create({
-      data: { ...toBeDeleted, order: newOrder, listId: dId },
+      data: { ...toBeDeleted, listOrder: newOrder, listId: dId },
     });
     const reattachAssignees = this.prisma.assignee.createMany({
       data: nullAssignees,
@@ -65,8 +68,8 @@ export class UtilService {
   private async updateOrder({ id, order, type, model }) {
     const isSource = type === 'source';
     return model.updateMany({
-      where: { listId: id, order: { [isSource ? 'gt' : 'gte']: order } },
-      data: { order: { [isSource ? 'decrement' : 'increment']: 1 } },
+      where: { listId: id, listOrder: { [isSource ? 'gt' : 'gte']: order } },
+      data: { listOrder: { [isSource ? 'decrement' : 'increment']: 1 } },
     });
   }
 }

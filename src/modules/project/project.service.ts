@@ -4,6 +4,7 @@ import { MemberService } from '../member/member.service';
 import { V1Project, V1ProjectsList } from './entities/get-projects-list.entity';
 import { PostProjectDto } from './dto/post-project.dto';
 import { V1ProjectDetail } from './entities/get-project-detail.entity';
+import { SprintStatus } from '@prisma/client';
 
 @Injectable()
 export class ProjectService {
@@ -97,6 +98,15 @@ export class ProjectService {
         { name: 'In Progress', projectId: project.id, order: 2 },
         { name: 'Done', projectId: project.id, order: 3 },
       ],
+    });
+
+    await this.prisma.sprint.create({
+      data: {
+        name: 'Backlog',
+        projectId: project.id,
+        status: SprintStatus.CREATED,
+        order: 0,
+      },
     });
 
     return {

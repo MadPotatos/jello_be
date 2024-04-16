@@ -1,11 +1,15 @@
-import { IsNotEmpty, IsNumber, IsString } from 'class-validator';
+import { IsNotEmpty, IsNumber, IsOptional, IsString } from 'class-validator';
 
 export class PostIssueDto {
   @IsNotEmpty()
   @IsString()
   summary: string;
 
-  @IsNotEmpty()
+  @IsOptional()
+  @IsNumber()
+  sprintId: number;
+
+  @IsOptional()
   @IsNumber()
   listId: number;
 

@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
-import { PrismaService } from '../../prisma.service'; // Adjust the path accordingly
-import { UtilService } from '../../util.service'; // Adjust the path accordingly
+import { PrismaService } from '../../prisma.service';
+import { UtilService } from '../../util.service';
 import { PostIssueDto } from './dto/create-issue.dto';
 
 @Injectable()
@@ -10,7 +10,7 @@ export class IssueService {
     private readonly util: UtilService,
   ) {}
 
-  async getIssuesInProject(projectId: number, userId?: number) {
+  async getIssuesByListInProject(projectId: number, userId?: number) {
     try {
       const listIssues = await this.prisma.list.findMany({
         where: { projectId: +projectId },
@@ -20,7 +20,45 @@ export class IssueService {
             ...(userId && {
               where: { assignees: { some: { userId: +userId } } },
             }),
-            orderBy: { order: 'asc' },
+            orderBy: { listOrder: 'asc' },
+            include: {
+              assignees: {
+                select: {
+                  userId: true,
+                  User: { select: { name: true, avatar: true } },
+                },
+                orderBy: { createdAt: 'asc' },
+              },
+              _count: {
+                select: { comments: true },
+              },
+            },
+          },
+        },
+      });
+      const issues = listIssues.reduce(
+        (p, { id, issues }) => ({
+          ...p,
+          [id]: issues.map(({ _count, ...issue }) => ({ ...issue, ..._count })),
+        }),
+        {},
+      );
+      return issues;
+    } catch (err) {
+      console.log(err);
+    }
+  }
+
+  async getIssuesBySprintInProject(projectId: number, userId?: number) {
+    try {
+      const listIssues = await this.prisma.sprint.findMany({
+        where: { projectId: +projectId },
+        include: {
+          issues: {
+            ...(userId && {
+              where: { assignees: { some: { userId: +userId } } },
+            }),
+            orderBy: { sprintOrder: 'asc' },
             include: {
               assignees: {
                 select: {
@@ -50,13 +88,30 @@ export class IssueService {
   }
 
   async createIssue(body: PostIssueDto) {
+    const { listId, sprintId } = body;
+    let listOrder = 0;
+    let sprintOrder = 0;
     try {
-      const { _count: order } = await this.prisma.issue.aggregate({
-        where: { listId: body.listId },
-        _count: true,
-      });
+      if (listId) {
+        const { _count: order } = await this.prisma.issue.aggregate({
+          where: { listId: body.listId },
+          _count: true,
+        });
+        listOrder = Number(order);
+      }
+      if (sprintId) {
+        const { _count: order } = await this.prisma.issue.aggregate({
+          where: { sprintId: body.sprintId },
+          _count: true,
+        });
+        sprintOrder = Number(order);
+      }
       const issue = await this.prisma.issue.create({
-        data: { ...body, order: Number(order) + 1 },
+        data: {
+          ...body,
+          ...(listId && { listOrder: Number(listOrder) }),
+          ...(sprintId && { sprintOrder: Number(sprintOrder) }),
+        },
       });
       return { ...issue, assignees: [], comments: 0 };
     } catch (err) {
@@ -76,7 +131,7 @@ export class IssueService {
           });
           await this.prisma.issue.update({
             where: { id },
-            data: { [type]: value, order: Number(order) + 1 },
+            data: { [type]: value, listOrder: Number(order) + 1 },
           });
           break;
         case 'addAssignee':
@@ -135,26 +190,26 @@ export class IssueService {
     try {
       const issueToDelete = await this.prisma.issue.findUnique({
         where: { id: +id },
-        select: { order: true, listId: true },
+        select: { listOrder: true, listId: true },
       });
 
       if (!issueToDelete) {
         throw new Error('Issue not found');
       }
 
-      const orderToDelete = issueToDelete.order;
+      const orderToDelete = issueToDelete.listOrder;
       const listId = issueToDelete.listId;
 
       await this.prisma.issue.delete({ where: { id: +id } });
       await this.prisma.issue.updateMany({
         where: {
-          order: {
+          listOrder: {
             gte: orderToDelete,
           },
           listId: listId,
         },
         data: {
-          order: {
+          listOrder: {
             decrement: 1,
           },
         },

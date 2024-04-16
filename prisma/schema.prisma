@@ -68,6 +68,7 @@ model List {
 model Sprint {
   id        Int          @id @default(autoincrement())
   name      String       @db.VarChar(50)
+  order     Int
   startDate DateTime?
   endDate   DateTime?
   goal      String?      @db.VarChar(200)
@@ -80,22 +81,23 @@ model Sprint {
 }
 
 model Issue {
-  id         Int        @id @default(autoincrement())
-  order      Int
-  priority   Int
-  type       Int
-  summary    String     @db.VarChar(100)
-  descr      String?    @db.VarChar(500)
-  createdAt  DateTime   @default(now())
-  updatedAt  DateTime   @default(now()) @updatedAt
-  List       List?      @relation(fields: [listId], references: [id], onDelete: Cascade)
-  listId     Int?
-  Sprint     Sprint?    @relation(fields: [sprintId], references: [id], onDelete: Cascade)
-  sprintId   Int?
-  User       User?      @relation(fields: [reporterId], references: [id], onDelete: Cascade)
-  reporterId Int
-  comments   Comment[]
-  assignees  Assignee[]
+  id          Int        @id @default(autoincrement())
+  listOrder   Int?
+  sprintOrder Int?
+  priority    Int
+  type        Int
+  summary     String     @db.VarChar(100)
+  descr       String?    @db.VarChar(500)
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @default(now()) @updatedAt
+  List        List?      @relation(fields: [listId], references: [id], onDelete: Cascade)
+  listId      Int?
+  Sprint      Sprint?    @relation(fields: [sprintId], references: [id], onDelete: Cascade)
+  sprintId    Int?
+  User        User?      @relation(fields: [reporterId], references: [id], onDelete: Cascade)
+  reporterId  Int
+  comments    Comment[]
+  assignees   Assignee[]
 }
 
 model Assignee {

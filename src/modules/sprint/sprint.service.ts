@@ -37,13 +37,14 @@ export class SprintService {
         where: { projectId },
       });
 
-      const defaultName = `Sprint-${sprintCount + 1}`;
+      const defaultName = `Sprint-${sprintCount}`;
 
       const sprint = await this.prisma.sprint.create({
         data: {
           name: defaultName,
           projectId: projectId,
           status: SprintStatus.CREATED,
+          order: sprintCount,
         },
       });
 
