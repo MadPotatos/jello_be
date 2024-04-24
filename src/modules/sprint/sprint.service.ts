@@ -18,6 +18,7 @@ export class SprintService {
             id: sprint.id,
             name: sprint.name,
             goal: sprint.goal,
+            order: sprint.order,
             startDate: sprint.startDate,
             endDate: sprint.endDate,
             createdAt: sprint.createdAt,
@@ -71,14 +72,37 @@ export class SprintService {
 
   async deleteSprint(id: number): Promise<any> {
     try {
-      await this.prisma.sprint.delete({
+      const sprintToDelete = await this.prisma.sprint.findUnique({
         where: { id: +id },
+        select: { order: true, projectId: true },
+      });
+
+      if (!sprintToDelete) {
+        throw new Error('Sprint not found');
+      }
+
+      const orderToDelete = sprintToDelete.order;
+      const projectId = sprintToDelete.projectId;
+
+      await this.prisma.sprint.delete({ where: { id: +id } });
+      await this.prisma.sprint.updateMany({
+        where: {
+          order: {
+            gte: orderToDelete,
+          },
+          projectId: projectId,
+        },
+        data: {
+          order: {
+            decrement: 1,
+          },
+        },
       });
 
       return { success: true };
     } catch (err) {
-      console.error('Error deleting sprint:', err);
-      throw err;
+      console.error(err);
+      return { success: false, error: 'Failed to delete sprint' };
     }
   }
 }

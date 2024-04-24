@@ -19,6 +19,9 @@ export class V1Sprint {
   @IsOptional()
   goal?: string;
 
+  @IsNumber()
+  order: number;
+
   @IsDate()
   @IsOptional()
   startDate?: Date;
