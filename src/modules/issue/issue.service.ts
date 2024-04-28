@@ -163,16 +163,12 @@ export class IssueService {
         id,
         s: { sId, order },
         d: { dId, newOrder },
+        type,
       } = body;
 
       await (sId === dId
-        ? this.util.sameContainerReorder(
-            { id, order, newOrder },
-            { listId: sId },
-            this.prisma.issue,
-          )
-        : this.util.diffContainerReorder(body, this.prisma.issue));
-
+        ? this.util.sameContainerReorder({ id, sId, order, newOrder, type })
+        : this.util.diffContainerReorder(body));
       return;
     } catch (err) {
       console.log(err);
