@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { ConflictException, Injectable } from '@nestjs/common';
 import { SprintStatus } from '@prisma/client';
 import { PrismaService } from 'src/prisma.service';
 import { V1Sprint } from './entities/get-sprint.entity';
@@ -57,17 +57,29 @@ export class SprintService {
   }
 
   async updateSprint(id: number, data: any): Promise<any> {
-    try {
-      const sprint = await this.prisma.sprint.update({
-        where: { id: +id },
-        data,
-      });
+    const statusUpdate = data.status;
 
-      return sprint;
-    } catch (err) {
-      console.error('Error updating sprint:', err);
-      throw err;
+    if (statusUpdate && statusUpdate !== SprintStatus.CREATED) {
+      if (statusUpdate === SprintStatus.IN_PROGRESS) {
+        const ongoingSprintsCount = await this.prisma.sprint.count({
+          where: {
+            projectId: data.projectId,
+            status: SprintStatus.IN_PROGRESS,
+          },
+        });
+
+        if (ongoingSprintsCount > 0) {
+          throw new ConflictException("There's already an ongoing sprint");
+        }
+      }
     }
+
+    const sprint = await this.prisma.sprint.update({
+      where: { id: +id },
+      data,
+    });
+
+    return sprint;
   }
 
   async deleteSprint(id: number): Promise<any> {
@@ -102,7 +114,7 @@ export class SprintService {
       return { success: true };
     } catch (err) {
       console.error(err);
-      return { success: false, error: 'Failed to delete sprint' };
+      throw err;
     }
   }
 }

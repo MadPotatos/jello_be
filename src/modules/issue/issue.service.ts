@@ -70,6 +70,9 @@ export class IssueService {
               _count: {
                 select: { comments: true },
               },
+              List: {
+                select: { name: true },
+              },
             },
           },
         },
@@ -77,7 +80,10 @@ export class IssueService {
       const issues = listIssues.reduce(
         (p, { id, issues }) => ({
           ...p,
-          [id]: issues.map(({ _count, ...issue }) => ({ ...issue, ..._count })),
+          [id]: issues.map(({ _count, ...issue }) => ({
+            ...issue,
+            ..._count,
+          })),
         }),
         {},
       );
