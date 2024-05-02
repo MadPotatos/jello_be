@@ -10,7 +10,10 @@ export class SprintService {
   async getSprintsInProject(projectId: number): Promise<V1Sprint[]> {
     try {
       const rawSprintData = await this.prisma.sprint.findMany({
-        where: { projectId: +projectId },
+        where: {
+          projectId: +projectId,
+          NOT: { status: SprintStatus.COMPLETED },
+        },
       });
       const sprints: V1Sprint[] = await Promise.all(
         rawSprintData.map(async (sprint) => {
@@ -29,6 +32,26 @@ export class SprintService {
       return sprints;
     } catch (err) {
       console.log(err);
+    }
+  }
+
+  async getNotInProgressSprints(projectId: number) {
+    try {
+      const sprints = await this.prisma.sprint.findMany({
+        where: {
+          projectId: projectId,
+          status: SprintStatus.CREATED,
+        },
+        select: {
+          id: true,
+          name: true,
+        },
+      });
+
+      return sprints;
+    } catch (err) {
+      console.error(err);
+      throw err;
     }
   }
 
@@ -112,6 +135,32 @@ export class SprintService {
       });
 
       return { success: true };
+    } catch (err) {
+      console.error(err);
+      throw err;
+    }
+  }
+
+  async completeSprint(id: number, body: any): Promise<any> {
+    try {
+      const dId = body.destinationId;
+      const sprint = await this.prisma.sprint.update({
+        where: { id: +id },
+        data: {
+          status: SprintStatus.COMPLETED,
+        },
+      });
+
+      const issues = await this.prisma.issue.updateMany({
+        where: {
+          sprintId: +id,
+        },
+        data: {
+          sprintId: dId,
+        },
+      });
+
+      return sprint;
     } catch (err) {
       console.error(err);
       throw err;

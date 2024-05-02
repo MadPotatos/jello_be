@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../../prisma.service';
 import { UtilService } from '../../util.service';
 import { PostIssueDto } from './dto/create-issue.dto';
+import { SprintStatus } from '@prisma/client';
 
 @Injectable()
 export class IssueService {
@@ -20,6 +21,7 @@ export class IssueService {
             ...(userId && {
               where: { assignees: { some: { userId: +userId } } },
             }),
+            where: { Sprint: { status: SprintStatus.IN_PROGRESS } },
             orderBy: { listOrder: 'asc' },
             include: {
               assignees: {
