@@ -55,6 +55,22 @@ export class SprintService {
     }
   }
 
+  async getCurrentSprint(projectId: number): Promise<V1Sprint> {
+    try {
+      const sprint = await this.prisma.sprint.findFirst({
+        where: {
+          projectId: projectId,
+          status: SprintStatus.IN_PROGRESS,
+        },
+      });
+
+      return sprint;
+    } catch (err) {
+      console.error(err);
+      throw err;
+    }
+  }
+
   async createSprint(projectId: number): Promise<any> {
     try {
       const sprintCount = await this.prisma.sprint.count({

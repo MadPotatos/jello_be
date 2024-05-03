@@ -28,6 +28,13 @@ export class SprintController {
     return this.sprintService.getNotInProgressSprints(projectId);
   }
 
+  @Get('current/:projectId')
+  async getCurrentSprint(
+    @Param('projectId') projectId: number,
+  ): Promise<V1Sprint> {
+    return this.sprintService.getCurrentSprint(projectId);
+  }
+
   @Post()
   @UseGuards(JwtGuard)
   async createSprint(@Body() body: { projectId: number }) {
