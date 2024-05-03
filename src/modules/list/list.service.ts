@@ -81,17 +81,17 @@ export class ListService {
     }
   }
 
-  async reorderLists(body: any) {
-    try {
-      const { id, order, newOrder, projectId } = body;
-      await this.util.sameContainerReorder(
-        { id, order, newOrder },
-        { projectId },
-        this.prisma.list,
-      );
-      return 'Successfully reordered lists';
-    } catch (err) {
-      console.log(err);
-    }
-  }
+  // async reorderLists(body: any) {
+  //   try {
+  //     const { id, order, newOrder, projectId } = body;
+  //     await this.util.sameContainerReorder(
+  //       { id, order, newOrder },
+  //       { projectId },
+  //       this.prisma.list,
+  //     );
+  //     return 'Successfully reordered lists';
+  //   } catch (err) {
+  //     console.log(err);
+  //   }
+  // }
 }

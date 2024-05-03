@@ -22,7 +22,15 @@ export class IssueController {
     @Param('projectId') projectId: number,
     @Query('userId') userId?: number,
   ) {
-    return this.issueService.getIssuesInProject(projectId, userId);
+    return this.issueService.getIssuesByListInProject(projectId, userId);
+  }
+
+  @Get('sprint/:projectId')
+  async getIssuesInSprint(
+    @Param('projectId') projectId: number,
+    @Query('userId') userId?: number,
+  ) {
+    return this.issueService.getIssuesBySprintInProject(projectId, userId);
   }
 
   @UseGuards(JwtGuard)

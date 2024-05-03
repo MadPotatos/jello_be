@@ -5,37 +5,65 @@ import { PrismaService } from './prisma.service';
 export class UtilService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async sameContainerReorder({ id, order, newOrder }, whereConfig, model) {
-    const ste = newOrder > order;
-    const toBeMoved = model.updateMany({
-      where: {
-        ...whereConfig,
-        AND: [
-          { order: { [ste ? 'gt' : 'lt']: order } },
-          { order: { [ste ? 'lte' : 'gte']: newOrder } },
-        ],
-      },
-      data: { order: { [ste ? 'decrement' : 'increment']: 1 } },
-    });
-    const dragged = model.update({ where: { id }, data: { order: newOrder } });
-    return Promise.all([toBeMoved, dragged]);
+  async sameContainerReorder({ id, sId, order, newOrder, type }) {
+    try {
+      const prisma = this.prisma;
+
+      await prisma.$transaction(async (tx) => {
+        const ste = newOrder > order;
+
+        const toBeMoved = await tx.issue.updateMany({
+          where: {
+            [type === 'list' ? 'listId' : 'sprintId']: sId,
+            AND: [
+              {
+                [type === 'list' ? 'listOrder' : 'sprintOrder']: {
+                  [ste ? 'gt' : 'lt']: order,
+                },
+              },
+              {
+                [type === 'list' ? 'listOrder' : 'sprintOrder']: {
+                  [ste ? 'lte' : 'gte']: newOrder,
+                },
+              },
+            ],
+          },
+          data: {
+            [type === 'list' ? 'listOrder' : 'sprintOrder']: {
+              [ste ? 'decrement' : 'increment']: 1,
+            },
+          },
+        });
+
+        const dragged = await tx.issue.update({
+          where: { id },
+          data: { [type === 'list' ? 'listOrder' : 'sprintOrder']: newOrder },
+        });
+
+        return { toBeMoved, dragged };
+      });
+    } catch (err) {
+      console.error(err);
+    }
   }
 
-  async diffContainerReorder(
-    { id, s: { sId, order }, d: { dId, newOrder } },
-    model,
-  ) {
+  async diffContainerReorder({
+    id,
+    s: { sId, order },
+    d: { dId, newOrder },
+    type,
+  }) {
     const toBeUpdatedSource = this.updateOrder({
       id: sId,
       order,
-      type: 'source',
-      model,
+      issueType: 'source',
+      type,
     });
     const toBeUpdatedTarget = this.updateOrder({
       id: dId,
       order: newOrder,
-      type: 'target',
-      model,
+      issueType: 'target',
+      type,
     });
 
     const [nullAssignees, nullComments] = await Promise.all([
@@ -43,9 +71,13 @@ export class UtilService {
       this.prisma.comment.findMany({ where: { issueId: id } }),
     ]);
 
-    const toBeDeleted = await model.delete({ where: { id } });
-    await model.create({
-      data: { ...toBeDeleted, order: newOrder, listId: dId },
+    const toBeDeleted = await this.prisma.issue.delete({ where: { id } });
+    await this.prisma.issue.create({
+      data: {
+        ...toBeDeleted,
+        [type === 'list' ? 'listOrder' : 'sprintOrder']: newOrder,
+        [type === 'list' ? 'listId' : 'sprintId']: dId,
+      },
     });
     const reattachAssignees = this.prisma.assignee.createMany({
       data: nullAssignees,
@@ -62,11 +94,20 @@ export class UtilService {
     ]);
   }
 
-  private async updateOrder({ id, order, type, model }) {
-    const isSource = type === 'source';
-    return model.updateMany({
-      where: { listId: id, order: { [isSource ? 'gt' : 'gte']: order } },
-      data: { order: { [isSource ? 'decrement' : 'increment']: 1 } },
+  private async updateOrder({ id, order, issueType, type }) {
+    const isSource = issueType === 'source';
+    return this.prisma.issue.updateMany({
+      where: {
+        [type === 'list' ? 'listId' : 'sprintId']: id,
+        [type === 'list' ? 'listOrder' : 'sprintOrder']: {
+          [isSource ? 'gt' : 'gte']: order,
+        },
+      },
+      data: {
+        [type === 'list' ? 'listOrder' : 'sprintOrder']: {
+          [isSource ? 'decrement' : 'increment']: 1,
+        },
+      },
     });
   }
 }

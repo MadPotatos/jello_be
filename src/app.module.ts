@@ -12,6 +12,7 @@ import { ListModule } from './modules/list/list.module';
 import { IssueModule } from './modules/issue/issue.module';
 import { CommentModule } from './modules/comment/comment.module';
 import { RepositoryModule } from './modules/repo/repo.module';
+import { SprintModule } from './modules/sprint/sprint.module';
 
 @Module({
   imports: [
@@ -27,6 +28,7 @@ import { RepositoryModule } from './modules/repo/repo.module';
     AuthModule,
     CloudinaryModule,
     RepositoryModule,
+    SprintModule,
   ],
   controllers: [AppController],
   providers: [AppService, PrismaService],
