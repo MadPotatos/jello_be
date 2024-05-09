@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma.service';
 import { GetMember, GetMemberList } from './entities/get-member.entity';
+import { NotificationType } from '@prisma/client';
 
 @Injectable()
 export class MemberService {
@@ -65,6 +66,14 @@ export class MemberService {
         data: { updatedAt: new Date(Date.now()).toISOString() },
       });
       await Promise.all([member, project]);
+      await this.prisma.notification.create({
+        data: {
+          userId,
+          message: `You have been added to project ${project.name}`,
+          type: NotificationType.PROJECT_INVITE,
+          projectId,
+        },
+      });
       return member;
     } catch (err) {
       console.log(err);

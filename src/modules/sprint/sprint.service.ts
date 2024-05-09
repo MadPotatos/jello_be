@@ -1,5 +1,5 @@
 import { ConflictException, Injectable } from '@nestjs/common';
-import { SprintStatus } from '@prisma/client';
+import { NotificationType, SprintStatus } from '@prisma/client';
 import { PrismaService } from 'src/prisma.service';
 import { V1Sprint } from './entities/get-sprint.entity';
 
@@ -97,12 +97,15 @@ export class SprintService {
 
   async updateSprint(id: number, data: any): Promise<any> {
     const statusUpdate = data.status;
+    const sprint = await this.prisma.sprint.findUnique({
+      where: { id: +id },
+    });
 
     if (statusUpdate && statusUpdate !== SprintStatus.CREATED) {
       if (statusUpdate === SprintStatus.IN_PROGRESS) {
         const ongoingSprintsCount = await this.prisma.sprint.count({
           where: {
-            projectId: data.projectId,
+            projectId: sprint.projectId,
             status: SprintStatus.IN_PROGRESS,
           },
         });
@@ -110,15 +113,27 @@ export class SprintService {
         if (ongoingSprintsCount > 0) {
           throw new ConflictException("There's already an ongoing sprint");
         }
+        const members = await this.prisma.member.findMany({
+          where: { projectId: sprint.projectId },
+        });
+
+        await this.prisma.notification.createMany({
+          data: members.map((member) => ({
+            userId: member.userId,
+            message: `${sprint.name} has started`,
+            type: NotificationType.SPRINT_STARTED,
+            projectId: data.projectId,
+          })),
+        });
       }
     }
 
-    const sprint = await this.prisma.sprint.update({
+    const updateSprint = await this.prisma.sprint.update({
       where: { id: +id },
       data,
     });
 
-    return sprint;
+    return updateSprint;
   }
 
   async deleteSprint(id: number): Promise<any> {
@@ -174,6 +189,18 @@ export class SprintService {
         data: {
           sprintId: dId,
         },
+      });
+      const projectId = sprint.projectId;
+      const members = await this.prisma.member.findMany({
+        where: { projectId },
+      });
+      await this.prisma.notification.createMany({
+        data: members.map((member) => ({
+          userId: member.userId,
+          message: `${sprint.name} has been completed`,
+          type: NotificationType.SPRINT_COMPLETED,
+          projectId: projectId,
+        })),
       });
 
       return sprint;
