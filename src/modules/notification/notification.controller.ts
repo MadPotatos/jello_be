@@ -1,8 +1,22 @@
-import { Controller, Get, Sse } from '@nestjs/common';
+import { Controller, Get, Param, Put, UseGuards } from '@nestjs/common';
 import { NotificationService } from './notification.service';
-import { Observable } from 'rxjs';
+import { JwtGuard } from '../auth/guards/jwt.guard';
 
-@Controller('notifications')
+@Controller('notification')
 export class NotificationController {
-  constructor(private readonly notificationSseService: NotificationService) {}
+  constructor(private readonly notificationService: NotificationService) {}
+
+  @Get('/:userId')
+  @UseGuards(JwtGuard)
+  async getNotifications(@Param('userId') userId: number) {
+    return this.notificationService.getNotifications(userId);
+  }
+
+  @Put('mark-as-read/:notificationId')
+  @UseGuards(JwtGuard)
+  async markNotificationAsRead(
+    @Param('notificationId') notificationId: number,
+  ) {
+    return this.notificationService.markNotificationAsRead(notificationId);
+  }
 }

@@ -13,9 +13,25 @@ export class NotificationService {
         where: {
           userId: userId,
         },
+        orderBy: { createdAt: 'desc' },
+        include: {
+          Project: {
+            select: {
+              name: true,
+              image: true,
+            },
+          },
+        },
       });
 
-      return notifications;
+      const unreadNotificationsCount = notifications.filter(
+        (notification) => !notification.isRead,
+      ).length;
+
+      return {
+        notifications,
+        unreadNotificationsCount,
+      };
     } catch (err) {
       console.error(err);
       throw err;
