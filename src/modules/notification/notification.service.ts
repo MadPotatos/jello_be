@@ -1,11 +1,48 @@
 import { Injectable } from '@nestjs/common';
 import { Cron } from '@nestjs/schedule';
-import { Observable, Subject } from 'rxjs';
 import { PrismaService } from 'src/prisma.service';
+import { NotificationGateway } from './notification.gateway';
 
 @Injectable()
 export class NotificationService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private notificationGateway: NotificationGateway,
+  ) {}
+
+  async createNotification(notificationData: any) {
+    try {
+      if (notificationData.userIds) {
+        const userIds = notificationData.userIds;
+        await Promise.all(
+          userIds.map(async (userId) => {
+            await this.prisma.notification.create({
+              data: {
+                message: notificationData.message,
+                type: notificationData.type,
+                projectId: notificationData.projectId,
+                userId: userId,
+              },
+            });
+          }),
+        );
+        this.notificationGateway.notifyNewNotification(userIds);
+      } else {
+        const newNotification = await this.prisma.notification.create({
+          data: notificationData,
+        });
+
+        this.notificationGateway.notifyNewNotification([
+          notificationData.userId,
+        ]);
+
+        return newNotification;
+      }
+    } catch (err) {
+      console.error(err);
+      throw err;
+    }
+  }
 
   async getNotifications(userId: number) {
     try {

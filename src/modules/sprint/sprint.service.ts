@@ -2,10 +2,14 @@ import { ConflictException, Injectable } from '@nestjs/common';
 import { NotificationType, SprintStatus } from '@prisma/client';
 import { PrismaService } from 'src/prisma.service';
 import { V1Sprint } from './entities/get-sprint.entity';
+import { NotificationService } from '../notification/notification.service';
 
 @Injectable()
 export class SprintService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private notification: NotificationService,
+  ) {}
 
   async getSprintsInProject(projectId: number): Promise<V1Sprint[]> {
     try {
@@ -117,13 +121,11 @@ export class SprintService {
           where: { projectId: sprint.projectId },
         });
 
-        await this.prisma.notification.createMany({
-          data: members.map((member) => ({
-            userId: member.userId,
-            message: `${sprint.name} has started`,
-            type: NotificationType.SPRINT_STARTED,
-            projectId: data.projectId,
-          })),
+        await this.notification.createNotification({
+          message: `${sprint.name} has started`,
+          type: NotificationType.SPRINT_STARTED,
+          projectId: sprint.projectId,
+          userIds: members.map((member) => member.userId),
         });
       }
     }
@@ -194,15 +196,12 @@ export class SprintService {
       const members = await this.prisma.member.findMany({
         where: { projectId },
       });
-      await this.prisma.notification.createMany({
-        data: members.map((member) => ({
-          userId: member.userId,
-          message: `${sprint.name} has been completed`,
-          type: NotificationType.SPRINT_COMPLETED,
-          projectId: projectId,
-        })),
+      await this.notification.createNotification({
+        message: `${sprint.name} has been completed`,
+        type: NotificationType.SPRINT_COMPLETED,
+        projectId: projectId,
+        userIds: members.map((member) => member.userId),
       });
-
       return sprint;
     } catch (err) {
       console.error(err);
