@@ -19,4 +19,10 @@ export class NotificationController {
   ) {
     return this.notificationService.markNotificationAsRead(notificationId);
   }
+
+  @Put('mark-all-as-read/:userId')
+  @UseGuards(JwtGuard)
+  async markAllNotificationsAsRead(@Param('userId') userId: number) {
+    return this.notificationService.markAllNotificationsAsRead(userId);
+  }
 }

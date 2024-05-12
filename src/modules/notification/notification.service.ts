@@ -87,6 +87,18 @@ export class NotificationService {
     }
   }
 
+  async markAllNotificationsAsRead(userId: number) {
+    try {
+      await this.prisma.notification.updateMany({
+        where: { userId: userId },
+        data: { isRead: true },
+      });
+    } catch (err) {
+      console.error(err);
+      throw err;
+    }
+  }
+
   @Cron('0 0 * * *')
   async cleanUpNotifications() {
     try {

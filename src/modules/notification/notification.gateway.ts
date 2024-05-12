@@ -19,7 +19,6 @@ export class NotificationGateway
   connectedUsers: { [userId: number]: Socket[] } = {};
 
   handleConnection(client: Socket) {
-    console.log(`Client connected: ${client.id}`);
     const userId = getUserIdFromConnection(client);
     if (!userId) {
       return;

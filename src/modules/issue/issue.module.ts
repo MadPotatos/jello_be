@@ -4,9 +4,18 @@ import { IssueService } from './issue.service';
 import { PrismaService } from 'src/prisma.service';
 import { UtilService } from 'src/util.service';
 import { JwtService } from '@nestjs/jwt';
+import { NotificationService } from '../notification/notification.service';
+import { NotificationGateway } from '../notification/notification.gateway';
 
 @Module({
   controllers: [IssueController],
-  providers: [IssueService, PrismaService, UtilService, JwtService],
+  providers: [
+    IssueService,
+    PrismaService,
+    UtilService,
+    JwtService,
+    NotificationService,
+    NotificationGateway,
+  ],
 })
 export class IssueModule {}

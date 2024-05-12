@@ -2,13 +2,15 @@ import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../../prisma.service';
 import { UtilService } from '../../util.service';
 import { PostIssueDto } from './dto/create-issue.dto';
-import { SprintStatus } from '@prisma/client';
+import { NotificationType, SprintStatus } from '@prisma/client';
+import { NotificationService } from '../notification/notification.service';
 
 @Injectable()
 export class IssueService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly util: UtilService,
+    private readonly notification: NotificationService,
   ) {}
 
   async getIssuesByListInProject(projectId: number, userId?: number) {
@@ -130,6 +132,9 @@ export class IssueService {
   async updateIssue(id: number, body: any) {
     try {
       const { type, value, projectId } = body;
+      const issue = await this.prisma.issue.findUnique({
+        where: { id: +id },
+      });
 
       switch (type) {
         case 'listId':
@@ -143,12 +148,41 @@ export class IssueService {
           });
           break;
         case 'addAssignee':
-          await Promise.all([
-            this.prisma.assignee.deleteMany({ where: { issueId: id } }), // Remove all existing assignees
-            this.prisma.assignee.createMany({
-              data: value.map((userId) => ({ issueId: id, userId, projectId })), // Create new assignees based on the provided array
+          const existingAssigneesBeforeDelete =
+            await this.prisma.assignee.findMany({
+              where: { issueId: id },
+              select: { userId: true },
+            });
+          await this.prisma.assignee.deleteMany({ where: { issueId: id } });
+
+          await this.prisma.assignee.createMany({
+            data: value.map((userId) => ({ issueId: id, userId, projectId })),
+          });
+
+          const existingAssigneesAfterAdd = await this.prisma.assignee.findMany(
+            {
+              where: { issueId: id },
+              select: { userId: true },
+            },
+          );
+          const newAssignees = existingAssigneesAfterAdd.filter(
+            (assignee) =>
+              !existingAssigneesBeforeDelete.some(
+                (existingAssignee) =>
+                  existingAssignee.userId === assignee.userId,
+              ),
+          );
+          await Promise.all(
+            newAssignees.map(async (assignee) => {
+              await this.notification.createNotification({
+                userIds: [assignee.userId],
+                projectId,
+                issueId: id,
+                message: `You have been assigned to issue ${issue.summary}`,
+                type: NotificationType.ASSIGNED_TO_ISSUE,
+              });
             }),
-          ]);
+          );
           await this.updatedAt(id);
           break;
 
