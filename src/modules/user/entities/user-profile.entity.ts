@@ -1,5 +1,5 @@
 import { Type } from 'class-transformer';
-import { IsEmail, IsNumber, IsString } from 'class-validator';
+import { IsEmail, IsNumber, IsOptional, IsString } from 'class-validator';
 
 export class UserProfile {
   @IsNumber()
@@ -14,9 +14,11 @@ export class UserProfile {
   @IsString()
   avatar: string;
 
+  @IsOptional()
   @IsString()
   job: string;
 
+  @IsOptional()
   @IsString()
   organization: string;
 }

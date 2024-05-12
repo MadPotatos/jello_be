@@ -5,6 +5,7 @@ import { V1Project, V1ProjectsList } from './entities/get-projects-list.entity';
 import { PostProjectDto } from './dto/post-project.dto';
 import { V1ProjectDetail } from './entities/get-project-detail.entity';
 import { SprintStatus } from '@prisma/client';
+import { Cron } from '@nestjs/schedule';
 
 @Injectable()
 export class ProjectService {
@@ -161,6 +162,21 @@ export class ProjectService {
       project,
       message: 'Project deleted successfully',
     };
+  }
+
+  @Cron('0 0 * * *')
+  async cleanUpProjects() {
+    try {
+      const cutoffDate = new Date();
+      cutoffDate.setDate(cutoffDate.getDate() - 30); // Delete projects in trash older than 30 days
+
+      await this.prisma.project.deleteMany({
+        where: { updatedAt: { lt: cutoffDate }, isDeleted: true },
+      });
+    } catch (err) {
+      console.error(err);
+      throw err;
+    }
   }
 
   async restoreProject(id: number) {

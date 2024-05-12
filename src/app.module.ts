@@ -13,6 +13,8 @@ import { IssueModule } from './modules/issue/issue.module';
 import { CommentModule } from './modules/comment/comment.module';
 import { RepositoryModule } from './modules/repo/repo.module';
 import { SprintModule } from './modules/sprint/sprint.module';
+import { NotificationModule } from './modules/notification/notification.module';
+import { ScheduleModule } from '@nestjs/schedule';
 
 @Module({
   imports: [
@@ -29,6 +31,8 @@ import { SprintModule } from './modules/sprint/sprint.module';
     CloudinaryModule,
     RepositoryModule,
     SprintModule,
+    NotificationModule,
+    ScheduleModule.forRoot(),
   ],
   controllers: [AppController],
   providers: [AppService, PrismaService],
