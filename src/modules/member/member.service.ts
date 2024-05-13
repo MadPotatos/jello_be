@@ -60,6 +60,17 @@ export class MemberService {
     };
   }
 
+  async checkMemberInProject(
+    projectId: number,
+    userId: number,
+  ): Promise<boolean> {
+    const member = await this.prisma.member.findFirst({
+      where: { projectId, userId },
+    });
+
+    return !!member;
+  }
+
   async addMember(projectId: number, userId: number): Promise<any> {
     try {
       const member = await this.prisma.member.create({

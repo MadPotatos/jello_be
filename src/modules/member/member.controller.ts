@@ -27,4 +27,12 @@ export class MemberController {
   ): Promise<any> {
     return await this.memberService.addMember(projectId, userId);
   }
+
+  @Get('/check/:projectId/:userId')
+  async checkMember(
+    @Param('projectId') projectId: number,
+    @Param('userId') userId: number,
+  ): Promise<boolean> {
+    return await this.memberService.checkMemberInProject(projectId, userId);
+  }
 }
