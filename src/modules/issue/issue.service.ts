@@ -13,6 +13,36 @@ export class IssueService {
     private readonly notification: NotificationService,
   ) {}
 
+  async getAllIssuesByProject(projectId: number, userId?: number) {
+    try {
+      const issues = await this.prisma.issue.findMany({
+        where: { projectId: +projectId },
+        include: {
+          assignees: {
+            select: {
+              userId: true,
+              User: { select: { name: true, avatar: true } },
+            },
+            orderBy: { createdAt: 'asc' },
+          },
+          List: {
+            select: { name: true },
+          },
+          Sprint: {
+            select: { name: true },
+          },
+          User: {
+            select: { name: true, avatar: true },
+          },
+        },
+        orderBy: { createdAt: 'asc' },
+      });
+      return issues;
+    } catch (err) {
+      console.log(err);
+    }
+  }
+
   async getIssuesByListInProject(projectId: number, userId?: number) {
     try {
       const listIssues = await this.prisma.list.findMany({

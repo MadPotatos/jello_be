@@ -40,9 +40,9 @@ model Project {
   userId        Int
   lists         List[]
   members       Member[]
-  assignees     Assignee[]
   sprints       Sprint[]
   notifications Notification[]
+  issues        Issue[]
   isDeleted     Boolean        @default(false)
 }
 
@@ -96,6 +96,8 @@ model Issue {
   listId        Int?
   Sprint        Sprint?        @relation(fields: [sprintId], references: [id], onDelete: Cascade)
   sprintId      Int?
+  Project       Project?       @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  projectId     Int
   User          User?          @relation(fields: [reporterId], references: [id], onDelete: Cascade)
   reporterId    Int
   comments      Comment[]
@@ -110,8 +112,6 @@ model Assignee {
   userId    Int
   Issue     Issue?   @relation(fields: [issueId], references: [id], onDelete: Cascade)
   issueId   Int
-  Project   Project? @relation(fields: [projectId], references: [id], onDelete: Cascade)
-  projectId Int
 }
 
 model Comment {
