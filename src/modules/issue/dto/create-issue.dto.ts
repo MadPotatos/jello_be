@@ -15,6 +15,10 @@ export class PostIssueDto {
 
   @IsNotEmpty()
   @IsNumber()
+  projectId: number;
+
+  @IsNotEmpty()
+  @IsNumber()
   type: number;
 
   @IsNotEmpty()

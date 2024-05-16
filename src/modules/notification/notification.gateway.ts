@@ -29,7 +29,6 @@ export class NotificationGateway
   }
 
   handleDisconnect(client: Socket) {
-    console.log(`Client disconnected: ${client.id}`);
     const userIdsToRemove = Object.keys(this.connectedUsers).filter(
       (userId) => {
         const sockets = this.connectedUsers[userId];

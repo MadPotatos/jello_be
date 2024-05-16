@@ -99,6 +99,17 @@ export class NotificationService {
     }
   }
 
+  async deleteNotification(notificationId: number) {
+    try {
+      await this.prisma.notification.delete({
+        where: { id: notificationId },
+      });
+    } catch (err) {
+      console.error(err);
+      throw err;
+    }
+  }
+
   @Cron('0 0 * * *')
   async cleanUpNotifications() {
     try {

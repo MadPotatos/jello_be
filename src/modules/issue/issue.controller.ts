@@ -17,7 +17,15 @@ import { JwtGuard } from '../auth/guards/jwt.guard';
 export class IssueController {
   constructor(private readonly issueService: IssueService) {}
 
-  @Get(':projectId')
+  @Get('all/:projectId')
+  async getAllIssuesInProject(
+    @Param('projectId') projectId: number,
+    @Query('userId') userId?: number,
+  ) {
+    return this.issueService.getAllIssuesByProject(projectId, userId);
+  }
+
+  @Get('list/:projectId')
   async getIssuesInProject(
     @Param('projectId') projectId: number,
     @Query('userId') userId?: number,
