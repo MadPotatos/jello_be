@@ -21,6 +21,7 @@ export class NotificationService {
                 message: notificationData.message,
                 type: notificationData.type,
                 projectId: notificationData.projectId,
+                issueId: notificationData.issueId,
                 userId: userId,
               },
             });

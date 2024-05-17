@@ -209,7 +209,7 @@ export class IssueService {
           await this.prisma.assignee.deleteMany({ where: { issueId: id } });
 
           await this.prisma.assignee.createMany({
-            data: value.map((userId) => ({ issueId: id, userId, projectId })),
+            data: value.map((userId) => ({ issueId: id, userId })),
           });
 
           const existingAssigneesAfterAdd = await this.prisma.assignee.findMany(
