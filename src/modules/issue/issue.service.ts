@@ -64,7 +64,7 @@ export class IssueService {
                 orderBy: { createdAt: 'asc' },
               },
               _count: {
-                select: { comments: true },
+                select: { comments: true, children: true },
               },
             },
           },
@@ -101,9 +101,11 @@ export class IssueService {
                 },
                 orderBy: { createdAt: 'asc' },
               },
+
               _count: {
-                select: { comments: true },
+                select: { comments: true, children: true },
               },
+
               List: {
                 select: { name: true },
               },
@@ -122,6 +124,27 @@ export class IssueService {
         {},
       );
       return issues;
+    } catch (err) {
+      console.log(err);
+    }
+  }
+
+  async getSubIssuesByIssue(issueId: number) {
+    try {
+      const subIssues = await this.prisma.issue.findMany({
+        where: { parentId: +issueId },
+        orderBy: { createdAt: 'asc' },
+        include: {
+          assignees: {
+            select: {
+              userId: true,
+              User: { select: { name: true, avatar: true } },
+            },
+            orderBy: { createdAt: 'asc' },
+          },
+        },
+      });
+      return subIssues;
     } catch (err) {
       console.log(err);
     }

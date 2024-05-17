@@ -41,6 +41,11 @@ export class IssueController {
     return this.issueService.getIssuesBySprintInProject(projectId, userId);
   }
 
+  @Get('sub/:id')
+  async getSubIssues(@Param('id') id: number) {
+    return this.issueService.getSubIssuesByIssue(id);
+  }
+
   @UseGuards(JwtGuard)
   @Post()
   async createIssue(@Body() body: PostIssueDto) {

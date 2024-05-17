@@ -100,9 +100,12 @@ model Issue {
   projectId     Int
   User          User?          @relation(fields: [reporterId], references: [id], onDelete: Cascade)
   reporterId    Int
+  parentId      Int?
+  parentIssue   Issue?         @relation("IssueSubIssues", fields: [parentId], references: [id], onDelete: Cascade)
   comments      Comment[]
   assignees     Assignee[]
   notifications Notification[]
+  children      Issue[]        @relation("IssueSubIssues")
 }
 
 model Assignee {
