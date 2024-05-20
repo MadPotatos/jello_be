@@ -7,6 +7,10 @@ export class PostIssueDto {
 
   @IsOptional()
   @IsNumber()
+  parentId: number;
+
+  @IsOptional()
+  @IsNumber()
   sprintId: number;
 
   @IsOptional()
