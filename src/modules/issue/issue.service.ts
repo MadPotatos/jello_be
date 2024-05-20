@@ -13,12 +13,11 @@ export class IssueService {
     private readonly notification: NotificationService,
   ) {}
 
-  async getAllIssuesByProject(projectId: number, userId?: number) {
+  async getAllIssuesByProject(projectId: number) {
     try {
       const issues = await this.prisma.issue.findMany({
         where: {
           projectId: +projectId,
-          ...(userId && { assignees: { some: { userId: +userId } } }),
         },
         include: {
           assignees: {
@@ -46,11 +45,10 @@ export class IssueService {
     }
   }
 
-  async getIssuesByListInProject(projectId: number, userId?: number) {
+  async getIssuesByListInProject(projectId: number) {
     try {
       const issueWhereClause = {
         Sprint: { status: SprintStatus.IN_PROGRESS },
-        ...(userId && { assignees: { some: { userId: +userId } } }),
       };
 
       const listIssues = await this.prisma.list.findMany({
@@ -58,7 +56,7 @@ export class IssueService {
         orderBy: { order: 'asc' },
         include: {
           issues: {
-            where: issueWhereClause,
+            where: { Sprint: { status: SprintStatus.IN_PROGRESS } },
             orderBy: { listOrder: 'asc' },
             include: {
               assignees: {
@@ -90,7 +88,8 @@ export class IssueService {
       throw new Error('Failed to fetch issues');
     }
   }
-  async getIssuesBySprintInProject(projectId: number, userId?: number) {
+
+  async getIssuesBySprintInProject(projectId: number) {
     try {
       const listIssues = await this.prisma.sprint.findMany({
         where: {
@@ -99,12 +98,6 @@ export class IssueService {
         },
         include: {
           issues: {
-            ...(userId && {
-              where: {
-                assignees: { some: { userId: +userId } },
-              },
-            }),
-
             orderBy: { sprintOrder: 'asc' },
             include: {
               assignees: {
