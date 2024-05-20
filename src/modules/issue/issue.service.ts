@@ -16,7 +16,10 @@ export class IssueService {
   async getAllIssuesByProject(projectId: number, userId?: number) {
     try {
       const issues = await this.prisma.issue.findMany({
-        where: { projectId: +projectId },
+        where: {
+          projectId: +projectId,
+          ...(userId && { assignees: { some: { userId: +userId } } }),
+        },
         include: {
           assignees: {
             select: {
@@ -45,15 +48,17 @@ export class IssueService {
 
   async getIssuesByListInProject(projectId: number, userId?: number) {
     try {
+      const issueWhereClause = {
+        Sprint: { status: SprintStatus.IN_PROGRESS },
+        ...(userId && { assignees: { some: { userId: +userId } } }),
+      };
+
       const listIssues = await this.prisma.list.findMany({
         where: { projectId: +projectId },
         orderBy: { order: 'asc' },
         include: {
           issues: {
-            ...(userId && {
-              where: { assignees: { some: { userId: +userId } } },
-            }),
-            where: { Sprint: { status: SprintStatus.IN_PROGRESS } },
+            where: issueWhereClause,
             orderBy: { listOrder: 'asc' },
             include: {
               assignees: {
@@ -70,28 +75,36 @@ export class IssueService {
           },
         },
       });
+
       const issues = listIssues.reduce(
-        (p, { id, issues }) => ({
-          ...p,
+        (acc, { id, issues }) => ({
+          ...acc,
           [id]: issues.map(({ _count, ...issue }) => ({ ...issue, ..._count })),
         }),
         {},
       );
+
       return issues;
     } catch (err) {
-      console.log(err);
+      console.error('Error fetching issues:', err);
+      throw new Error('Failed to fetch issues');
     }
   }
-
   async getIssuesBySprintInProject(projectId: number, userId?: number) {
     try {
       const listIssues = await this.prisma.sprint.findMany({
-        where: { projectId: +projectId },
+        where: {
+          projectId: +projectId,
+          NOT: { status: SprintStatus.COMPLETED },
+        },
         include: {
           issues: {
             ...(userId && {
-              where: { assignees: { some: { userId: +userId } } },
+              where: {
+                assignees: { some: { userId: +userId } },
+              },
             }),
+
             orderBy: { sprintOrder: 'asc' },
             include: {
               assignees: {
