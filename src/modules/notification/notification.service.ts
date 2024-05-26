@@ -18,7 +18,6 @@ export class NotificationService {
           userIds.map(async (userId) => {
             await this.prisma.notification.create({
               data: {
-                message: notificationData.message,
                 type: notificationData.type,
                 projectId: notificationData.projectId,
                 issueId: notificationData.issueId,
@@ -57,6 +56,11 @@ export class NotificationService {
             select: {
               name: true,
               image: true,
+            },
+          },
+          Issue: {
+            select: {
+              summary: true,
             },
           },
         },

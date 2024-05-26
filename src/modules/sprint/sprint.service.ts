@@ -122,7 +122,6 @@ export class SprintService {
         });
 
         await this.notification.createNotification({
-          message: `${sprint.name} has started`,
           type: NotificationType.SPRINT_STARTED,
           projectId: sprint.projectId,
           userIds: members.map((member) => member.userId),
@@ -197,7 +196,6 @@ export class SprintService {
         where: { projectId },
       });
       await this.notification.createNotification({
-        message: `${sprint.name} has been completed`,
         type: NotificationType.SPRINT_COMPLETED,
         projectId: projectId,
         userIds: members.map((member) => member.userId),

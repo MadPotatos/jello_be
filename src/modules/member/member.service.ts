@@ -84,7 +84,6 @@ export class MemberService {
       await this.notification.createNotification({
         userId,
         projectId,
-        message: `You have been added to project ${project.name}`,
         type: NotificationType.PROJECT_INVITE,
       });
       return member;

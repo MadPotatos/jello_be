@@ -237,7 +237,6 @@ export class IssueService {
                 userIds: [assignee.userId],
                 projectId,
                 issueId: id,
-                message: `You have been assigned to issue ${issue.summary}`,
                 type: NotificationType.ASSIGNED_TO_ISSUE,
               });
             }),
