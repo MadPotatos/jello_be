@@ -18,27 +18,18 @@ export class IssueController {
   constructor(private readonly issueService: IssueService) {}
 
   @Get('all/:projectId')
-  async getAllIssuesInProject(
-    @Param('projectId') projectId: number,
-    @Query('userId') userId?: number,
-  ) {
-    return this.issueService.getAllIssuesByProject(projectId, userId);
+  async getAllIssuesInProject(@Param('projectId') projectId: number) {
+    return this.issueService.getAllIssuesByProject(projectId);
   }
 
   @Get('list/:projectId')
-  async getIssuesInProject(
-    @Param('projectId') projectId: number,
-    @Query('userId') userId?: number,
-  ) {
-    return this.issueService.getIssuesByListInProject(projectId, userId);
+  async getIssuesInProject(@Param('projectId') projectId: number) {
+    return this.issueService.getIssuesByListInProject(projectId);
   }
 
   @Get('sprint/:projectId')
-  async getIssuesInSprint(
-    @Param('projectId') projectId: number,
-    @Query('userId') userId?: number,
-  ) {
-    return this.issueService.getIssuesBySprintInProject(projectId, userId);
+  async getIssuesInSprint(@Param('projectId') projectId: number) {
+    return this.issueService.getIssuesBySprintInProject(projectId);
   }
 
   @Get('sub/:id')
