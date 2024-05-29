@@ -1,13 +1,8 @@
-import {
-  ConflictException,
-  HttpException,
-  HttpStatus,
-  Injectable,
-} from '@nestjs/common';
+import { ConflictException, Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma.service';
 import { CreateUserDto, UpdateUserDto } from './dto/dto/user.dto';
 import { hash } from 'bcrypt';
-import { GetUserByName, UserProfile } from './entities/user-profile.entity';
+import { UserProfile } from './entities/user-profile.entity';
 
 @Injectable()
 export class UserService {
