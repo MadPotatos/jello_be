@@ -74,7 +74,6 @@ export class CloudinaryService {
     } catch (error) {
       console.log(error);
       return {
-        url: 'http://res.cloudinary.com/dm6vzyxzh/image/upload/v1686325007/ymias8htkuuboccykul1.png',
         message: 'Upload failed.',
       };
     }
