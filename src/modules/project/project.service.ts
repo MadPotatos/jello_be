@@ -3,6 +3,9 @@ import { PrismaService } from 'src/prisma.service';
 import { MemberService } from '../member/member.service';
 import { V1Project, V1ProjectsList } from './entities/get-projects-list.entity';
 import { PostProjectDto } from './dto/post-project.dto';
+import { V1ProjectDetail } from './entities/get-project-detail.entity';
+import { SprintStatus } from '@prisma/client';
+import { Cron } from '@nestjs/schedule';
 
 @Injectable()
 export class ProjectService {
@@ -58,10 +61,22 @@ export class ProjectService {
     };
   }
 
-  async getById(id: number) {
-    return await this.prisma.project.findUnique({
+  async getById(id: number): Promise<V1ProjectDetail> {
+    const rawData = await this.prisma.project.findUnique({
       where: { id },
     });
+    if (!rawData) {
+      return null;
+    }
+    return {
+      id: rawData.id,
+      name: rawData.name,
+      description: rawData.descr,
+      repo: rawData.repo,
+      image: rawData.image,
+      createdAt: rawData.createdAt,
+      updatedAt: rawData.updatedAt,
+    };
   }
 
   async createProject(body: PostProjectDto) {
@@ -78,6 +93,23 @@ export class ProjectService {
     if (!project) {
       return null;
     }
+    await this.prisma.list.createMany({
+      data: [
+        { name: 'To Do', projectId: project.id, order: 1 },
+        { name: 'In Progress', projectId: project.id, order: 2 },
+        { name: 'Done', projectId: project.id, order: 3 },
+      ],
+    });
+
+    await this.prisma.sprint.create({
+      data: {
+        name: 'Backlog',
+        projectId: project.id,
+        status: SprintStatus.CREATED,
+        order: 0,
+      },
+    });
+
     return {
       project,
       message: 'Project created successfully',
@@ -130,6 +162,21 @@ export class ProjectService {
       project,
       message: 'Project deleted successfully',
     };
+  }
+
+  @Cron('0 0 * * *')
+  async cleanUpProjects() {
+    try {
+      const cutoffDate = new Date();
+      cutoffDate.setDate(cutoffDate.getDate() - 30); // Delete projects in trash older than 30 days
+
+      await this.prisma.project.deleteMany({
+        where: { updatedAt: { lt: cutoffDate }, isDeleted: true },
+      });
+    } catch (err) {
+      console.error(err);
+      throw err;
+    }
   }
 
   async restoreProject(id: number) {

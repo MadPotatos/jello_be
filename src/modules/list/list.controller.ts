@@ -32,9 +32,4 @@ export class ListController {
   async deleteList(@Param('id') id: number) {
     return this.listService.deleteList(id);
   }
-
-  @Post('reorder')
-  async reorderLists(@Body() body: any) {
-    return this.listService.reorderLists(body);
-  }
 }

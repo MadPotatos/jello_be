@@ -28,7 +28,7 @@ export class ListService {
         _count: true,
       });
       const list = await this.prisma.list.create({
-        data: { projectId, order: order + 1 },
+        data: { projectId, order: Number(order) + 1 },
       });
       return list;
     } catch (err) {
@@ -49,7 +49,7 @@ export class ListService {
     try {
       const listToDelete = await this.prisma.list.findUnique({
         where: { id: +id },
-        select: { order: true },
+        select: { order: true, projectId: true },
       });
 
       if (!listToDelete) {
@@ -57,6 +57,7 @@ export class ListService {
       }
 
       const orderToDelete = listToDelete.order;
+      const projectId = listToDelete.projectId;
 
       await this.prisma.list.delete({ where: { id: +id } });
       await this.prisma.list.updateMany({
@@ -64,6 +65,7 @@ export class ListService {
           order: {
             gte: orderToDelete,
           },
+          projectId: projectId,
         },
         data: {
           order: {
@@ -79,17 +81,17 @@ export class ListService {
     }
   }
 
-  async reorderLists(body: any) {
-    try {
-      const { id, order, newOrder, projectId } = body;
-      await this.util.sameContainerReorder(
-        { id, order, newOrder },
-        { projectId },
-        this.prisma.list,
-      );
-      return 'Successfully reordered lists';
-    } catch (err) {
-      console.log(err);
-    }
-  }
+  // async reorderLists(body: any) {
+  //   try {
+  //     const { id, order, newOrder, projectId } = body;
+  //     await this.util.sameContainerReorder(
+  //       { id, order, newOrder },
+  //       { projectId },
+  //       this.prisma.list,
+  //     );
+  //     return 'Successfully reordered lists';
+  //   } catch (err) {
+  //     console.log(err);
+  //   }
+  // }
 }

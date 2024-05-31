@@ -4,7 +4,7 @@ import { UserService } from 'src/modules/user/user.service';
 import { compare } from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
 
-const EXPIRE_TIME = 20 * 1000;
+const EXPIRE_TIME = 7 * 24 * 60 * 60 * 1000;
 
 @Injectable()
 export class AuthService {
@@ -45,7 +45,7 @@ export class AuthService {
       const { password, ...result } = user;
       return result;
     }
-    throw new UnauthorizedException();
+    throw new UnauthorizedException('Incorrect email or password');
   }
 
   async refreshToken(user: any) {

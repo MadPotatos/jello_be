@@ -17,12 +17,24 @@ import { JwtGuard } from '../auth/guards/jwt.guard';
 export class IssueController {
   constructor(private readonly issueService: IssueService) {}
 
-  @Get(':projectId')
-  async getIssuesInProject(
-    @Param('projectId') projectId: number,
-    @Query('userId') userId?: number,
-  ) {
-    return this.issueService.getIssuesInProject(projectId, userId);
+  @Get('all/:projectId')
+  async getAllIssuesInProject(@Param('projectId') projectId: number) {
+    return this.issueService.getAllIssuesByProject(projectId);
+  }
+
+  @Get('list/:projectId')
+  async getIssuesInProject(@Param('projectId') projectId: number) {
+    return this.issueService.getIssuesByListInProject(projectId);
+  }
+
+  @Get('sprint/:projectId')
+  async getIssuesInSprint(@Param('projectId') projectId: number) {
+    return this.issueService.getIssuesBySprintInProject(projectId);
+  }
+
+  @Get('sub/:id')
+  async getSubIssues(@Param('id') id: number) {
+    return this.issueService.getSubIssuesByIssue(id);
   }
 
   @UseGuards(JwtGuard)
@@ -36,6 +48,7 @@ export class IssueController {
     return this.issueService.updateIssue(id, body);
   }
 
+  @UseGuards(JwtGuard)
   @Delete(':id')
   async deleteIssue(@Param('id') id: number) {
     return this.issueService.deleteIssue(id);

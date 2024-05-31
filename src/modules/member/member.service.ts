@@ -1,10 +1,15 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma.service';
 import { GetMember, GetMemberList } from './entities/get-member.entity';
+import { NotificationType } from '@prisma/client';
+import { NotificationService } from '../notification/notification.service';
 
 @Injectable()
 export class MemberService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly notification: NotificationService,
+  ) {}
 
   async getLeaderByProjectId(projectId: number): Promise<GetMember | null> {
     const leaderInfo = await this.prisma.member.findFirst({
@@ -55,6 +60,17 @@ export class MemberService {
     };
   }
 
+  async checkMemberInProject(
+    projectId: number,
+    userId: number,
+  ): Promise<boolean> {
+    const member = await this.prisma.member.findFirst({
+      where: { projectId, userId },
+    });
+
+    return !!member;
+  }
+
   async addMember(projectId: number, userId: number): Promise<any> {
     try {
       const member = await this.prisma.member.create({
@@ -65,34 +81,15 @@ export class MemberService {
         data: { updatedAt: new Date(Date.now()).toISOString() },
       });
       await Promise.all([member, project]);
+      await this.notification.createNotification({
+        userId,
+        projectId,
+        type: NotificationType.PROJECT_INVITE,
+      });
       return member;
     } catch (err) {
       console.log(err);
       throw new Error('Failed to add member');
-    }
-  }
-
-  async removeMember(
-    memberId: number,
-    projectId: number,
-    userId: number,
-  ): Promise<any> {
-    try {
-      const member = await this.prisma.member.delete({
-        where: { id: memberId },
-      });
-      const removeAssignees = await this.prisma.assignee.deleteMany({
-        where: { AND: { userId, projectId } },
-      });
-      const project = await this.prisma.project.update({
-        where: { id: projectId },
-        data: { updatedAt: new Date(Date.now()).toISOString() },
-      });
-      await Promise.all([member, removeAssignees, project]);
-      return member;
-    } catch (err) {
-      console.log(err);
-      throw new Error('Failed to remove member');
     }
   }
 }

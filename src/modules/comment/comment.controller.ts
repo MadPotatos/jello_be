@@ -9,6 +9,7 @@ import {
 } from '@nestjs/common';
 import { CommentService } from './comment.service';
 import { JwtGuard } from '../auth/guards/jwt.guard';
+import { PostCommentDto } from './dto/create-comment.dto';
 
 @Controller('comments')
 export class CommentController {
@@ -21,7 +22,7 @@ export class CommentController {
 
   @UseGuards(JwtGuard)
   @Post()
-  async createComment(@Body() body: any) {
+  async createComment(@Body() body: PostCommentDto) {
     return this.commentService.createComment(body);
   }
 
