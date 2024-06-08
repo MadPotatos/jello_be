@@ -92,4 +92,42 @@ export class MemberService {
       throw new Error('Failed to add member');
     }
   }
+
+  async removeMember(projectId: number, userId: number): Promise<void> {
+    try {
+      // Check if the member exists in the project
+      const member = await this.prisma.member.findFirst({
+        where: { projectId, userId },
+      });
+
+      if (!member) {
+        throw new Error('Member not found in the project');
+      }
+
+      const issues = await this.prisma.issue.findMany({
+        where: { projectId },
+      });
+
+      const issueIds = issues.map((issue) => issue.id);
+
+      await this.prisma.assignee.deleteMany({
+        where: {
+          issueId: { in: issueIds },
+          userId,
+        },
+      });
+
+      await this.prisma.member.delete({
+        where: { id: member.id },
+      });
+
+      await this.prisma.project.update({
+        where: { id: projectId },
+        data: { updatedAt: new Date(Date.now()).toISOString() },
+      });
+    } catch (err) {
+      console.log(err);
+      throw new Error('Failed to remove member');
+    }
+  }
 }

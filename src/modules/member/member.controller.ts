@@ -1,4 +1,4 @@
-import { Controller, Get, Param, Post } from '@nestjs/common';
+import { Controller, Delete, Get, Param, Post } from '@nestjs/common';
 import { MemberService } from './member.service';
 import { GetMember, GetMemberList } from './entities/get-member.entity';
 
@@ -34,5 +34,13 @@ export class MemberController {
     @Param('userId') userId: number,
   ): Promise<boolean> {
     return await this.memberService.checkMemberInProject(projectId, userId);
+  }
+
+  @Delete('/:projectId/:userId')
+  async removeMember(
+    @Param('projectId') projectId: number,
+    @Param('userId') userId: number,
+  ): Promise<any> {
+    return await this.memberService.removeMember(projectId, userId);
   }
 }
