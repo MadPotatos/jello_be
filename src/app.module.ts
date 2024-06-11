@@ -7,7 +7,7 @@ import { AuthModule } from './modules/auth/auth.module';
 import { PrismaService } from './prisma.service';
 import { ProjectModule } from './modules/project/project.module';
 import { MemberModule } from './modules/member/member.module';
-import { CloudinaryModule } from './cloudinary/cloudinary.module';
+import { CloudinaryModule } from './modules/cloudinary/cloudinary.module';
 import { ListModule } from './modules/list/list.module';
 import { IssueModule } from './modules/issue/issue.module';
 import { CommentModule } from './modules/comment/comment.module';
