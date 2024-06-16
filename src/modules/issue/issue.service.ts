@@ -296,6 +296,12 @@ export class IssueService {
       const orderToDelete = issueToDelete.listOrder;
       const listId = issueToDelete.listId;
 
+      await this.prisma.notification.deleteMany({
+        where: {
+          issueId: +id,
+        },
+      });
+
       await this.prisma.issue.delete({ where: { id: +id } });
       await this.prisma.issue.updateMany({
         where: {

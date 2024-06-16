@@ -1,5 +1,5 @@
 import { Type } from 'class-transformer';
-import { IsDate, IsNumber, IsString } from 'class-validator';
+import { IsBoolean, IsDate, IsNumber, IsString } from 'class-validator';
 
 export class V1ProjectDetail {
   @IsNumber()
@@ -16,6 +16,9 @@ export class V1ProjectDetail {
 
   @IsString()
   image: string;
+
+  @IsBoolean()
+  isDeleted: boolean;
 
   @IsDate()
   createdAt: Date;

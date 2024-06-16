@@ -74,6 +74,7 @@ export class ProjectService {
       description: rawData.descr,
       repo: rawData.repo,
       image: rawData.image,
+      isDeleted: rawData.isDeleted,
       createdAt: rawData.createdAt,
       updatedAt: rawData.updatedAt,
     };
