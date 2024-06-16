@@ -39,7 +39,7 @@ async function main() {
     INSERT INTO Project (name, descr, repo, image, createdAt, updatedAt, userId, isDeleted)
     VALUES
       ('Project Jello', 'A project management website with NextJs, NestJs, Prisma, MySQL', 'https://github.com/MadPotatos/jello_fe', 'https://res.cloudinary.com/dneewzs4b/image/upload/v1716907191/l4vl7anbuiqcfipkzwi2.png', NOW(), NOW(), 1, false),
-      ('Hustnet', 'HustNet, mạng xã hội dành riêng cho sinh viên Hust. Nơi sinh viên có thể trao đổi học tập, tìm và kết bạn dựa trên lớp và lịch học.Project sử dụng frontend React + Vite cùng với backend NestJs', 'https://github.com/yamadaOliva/TenTsuh', 'https://res.cloudinary.com/dneewzs4b/image/upload/v1716907974/lxivuohqurzfcqlfnfwq.png', NOW(), NOW(), 2, false),
+      ('Hustnet', 'HustNet, mạng xã hội dành riêng cho sinh viên Hust. Nơi sinh viên có thể trao đổi học tập, tìm và kết bạn dựa trên lớp và lịch học.Project sử dụng frontend React + Vite cùng với backend NestJs', 'https://github.com/yamadaOliva/TenTsuh', 'https://res.cloudinary.com/dneewzs4b/image/upload/v1716907974/lxivuohqurzfcqlfnfwq.png', NOW(), NOW(), 1, false),
       ('Project E-commerce', 'Web E-commerce giúp xử lý 1.000.000 request cùng 1 lúc', 'https://github.com/kien2572001/ecommerce-fe', 'https://res.cloudinary.com/dneewzs4b/image/upload/v1716908191/n8hqlojlndspe0ifusi0.jpg', NOW(), NOW(), 3, false),
       ('BruhQuest, Java RPG game', 'Game 2D BruhQuest thuộc thể loại Top-down RPG được viết bằng Java swing cùng với thư viện đồ họa AWT ', 'https://github.com/MadPotatos/BruhQuest', 'https://res.cloudinary.com/dneewzs4b/image/upload/v1716909563/qbghcbardkpkvvjvcr1u.jpg', NOW(), NOW(), 1, false),
       ('TC', 'Restaurant recommend website. Web helps Japanese people living in Hanoi find good and cheap restaurants in Hanoi', 'https://github.com/MadPotatos/Project_LTW', 'https://res.cloudinary.com/dneewzs4b/image/upload/v1716909574/zb7u0danxgowimgtmwp8.jpg', NOW(), NOW(), 2, false),
@@ -60,11 +60,11 @@ async function main() {
       (false, NOW(), 1, 8),
       (false, NOW(), 1, 9),
       (false, NOW(), 1, 10),
-      (true, NOW(), 2, 2),
+      (true, NOW(), 2, 1),
       (false, NOW(), 2, 3),
       (false, NOW(), 2, 4),
       (false, NOW(), 2, 5),
-      (false, NOW(), 2, 1),
+      (false, NOW(), 2, 2),
       (true, NOW(), 3, 3),
       (false, NOW(), 3, 1),
       (true, NOW(), 4, 1),
@@ -176,7 +176,7 @@ async function main() {
 
 
     -- Project 2
-    (0,0, 1, 3, 'Thiết lập luồng cho dự án, tạo các trang cần thiết', 'Thiết lập luồng cho dự án, tạo các trang cần thiết', 100, NOW(), NOW(), NOW(), 6, 7, 2, 2, null),
+    (0,0, 1, 3, 'Thiết lập luồng cho dự án, tạo các trang cần thiết', 'Thiết lập luồng cho dự án', 100, NOW(), NOW(), NOW(), 6, 7, 2, 2, null),
     (1,1,1,3, 'Thiết kế cơ sở dữ liệu', 'Thiết kế cơ sở dữ liệu cho dự án', 100, NOW() + INTERVAL 1 DAY, NOW(), NOW(), 6, 7, 2, 2, null),  
     (0, 2, 1, 1, 'Thiết lập môi trường', 'Thiết lập môi trường với NextJs', 50, NOW() + INTERVAL 1 DAY, NOW(), NOW(), 5, 7, 2, 1, null),
     (1, 3, 1, 1, 'Tạo cơ sở dữ liệu', 'Tạo cơ sở dữ liệu cho dự án', 50, NOW() + INTERVAL 2 DAY, NOW(), NOW(), 5, 7, 2, 3, null),
