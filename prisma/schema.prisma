@@ -138,9 +138,9 @@ model Notification {
   userId    Int
   User      User             @relation(fields: [userId], references: [id])
   projectId Int?
-  Project   Project?         @relation(fields: [projectId], references: [id])
+  Project   Project?         @relation(fields: [projectId], references: [id], onDelete: Cascade)
   issueId   Int?
-  Issue     Issue?           @relation(fields: [issueId], references: [id])
+  Issue     Issue?           @relation(fields: [issueId], references: [id], onDelete: Cascade)
 }
 
 enum SprintStatus {
