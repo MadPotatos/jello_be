@@ -66,32 +66,14 @@ export class UtilService {
       type,
     });
 
-    const [nullAssignees, nullComments] = await Promise.all([
-      this.prisma.assignee.findMany({ where: { issueId: id } }),
-      this.prisma.comment.findMany({ where: { issueId: id } }),
-    ]);
-
-    const toBeDeleted = await this.prisma.issue.delete({ where: { id } });
-    await this.prisma.issue.create({
+    const updatedIssue = await this.prisma.issue.update({
+      where: { id },
       data: {
-        ...toBeDeleted,
         [type === 'list' ? 'listOrder' : 'sprintOrder']: newOrder,
         [type === 'list' ? 'listId' : 'sprintId']: dId,
       },
     });
-    const reattachAssignees = this.prisma.assignee.createMany({
-      data: nullAssignees,
-    });
-    const reattachComments = this.prisma.comment.createMany({
-      data: nullComments,
-    });
-
-    return Promise.all([
-      toBeUpdatedSource,
-      toBeUpdatedTarget,
-      reattachAssignees,
-      reattachComments,
-    ]);
+    return Promise.all([toBeUpdatedSource, toBeUpdatedTarget]);
   }
 
   private async updateOrder({ id, order, issueType, type }) {
