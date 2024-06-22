@@ -36,4 +36,10 @@ export class UserController {
   async getUserByName(@Query('name') name: string) {
     return await this.userService.getUserByNames(name);
   }
+
+  @UseGuards(JwtGuard)
+  @Put(':id/changePassword')
+  async updatePassword(@Param('id') id: number, @Body() body: any) {
+    return await this.userService.changePassword(id, body);
+  }
 }

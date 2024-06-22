@@ -1,8 +1,13 @@
-import { ConflictException, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  ConflictException,
+  Injectable,
+} from '@nestjs/common';
 import { PrismaService } from 'src/prisma.service';
 import { CreateUserDto, UpdateUserDto } from './dto/dto/user.dto';
 import { hash } from 'bcrypt';
 import { UserProfile } from './entities/user-profile.entity';
+import { compare } from 'bcrypt';
 
 @Injectable()
 export class UserService {
@@ -125,6 +130,32 @@ export class UserService {
         organization: user.organization,
       })),
       total: users.length,
+    };
+  }
+
+  async changePassword(id: number, body: any) {
+    const { currentPassword, newPassword } = body;
+    const user = await this.prisma.user.findUnique({
+      where: { id: id },
+    });
+
+    if (!user) {
+      throw new ConflictException('User not found');
+    }
+
+    const isMatch = await compare(currentPassword, user.password);
+    if (!isMatch) {
+      throw new BadRequestException('Current password is incorrect');
+    }
+
+    const hashedPassword = await hash(newPassword, 10);
+    await this.prisma.user.update({
+      where: { id: id },
+      data: { password: hashedPassword },
+    });
+
+    return {
+      message: 'Password updated successfully',
     };
   }
 }
