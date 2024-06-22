@@ -168,11 +168,11 @@ async function main() {
     (6, 3, 2, 1, 'Write CRUD API for sprint', 'Write CRUD API for sprint in the backend', 0, null, NOW(), NOW(), 1, 4, 1, 1, null),
     (7, 4, 2, 1, 'Write CRUD API for list', 'Write CRUD API for list in the backend', 0, null, NOW(), NOW(), 1, 4, 1, 1, null),
     (8, 5, 2, 1, 'Write CRUD API for comment', 'Write CRUD API for comment in the backend', 0, null, NOW(), NOW(), 1, 4, 1, 1, null),
-    (9, 0, 2, 1, 'Write CRUD API for notification', 'Write CRUD API for notification in the backend', 0, null, NOW(), NOW(), 1, 4, 1, 1, null),
-    (10, 1, 2, 1, 'Write CRUD API for assignee', 'Write CRUD API for assignee in the backend', 0, null, NOW(), NOW(), 1, 4, 1, 1, null),
-    (11, 2, 2, 1, 'Write CRUD API for member', 'Write CRUD API for member in the backend', 0, null, NOW(), NOW(), 1, 4, 1, 1, null),
-    (12, 3, 2, 1, 'Write CRUD API for project', 'Write CRUD API for project in the backend', 0, null, NOW(), NOW(), 1, 4, 1, 1, null),
-    (13, 4, 2, 1, 'Write CRUD API for user', 'Write CRUD API for user in the backend', 0, null, NOW(), NOW(), 1, 4, 1, 1, null),
+    (9, 0, 2, 1, 'Write CRUD API for notification', 'Write CRUD API for notification in the backend', 0, null, NOW(), NOW(), 1, 5, 1, 1, null),
+    (10, 1, 2, 1, 'Write CRUD API for assignee', 'Write CRUD API for assignee in the backend', 0, null, NOW(), NOW(), 1, 5, 1, 1, null),
+    (11, 2, 2, 1, 'Write CRUD API for member', 'Write CRUD API for member in the backend', 0, null, NOW(), NOW(), 1, 5, 1, 1, null),
+    (12, 3, 2, 1, 'Write CRUD API for project', 'Write CRUD API for project in the backend', 0, null, NOW(), NOW(), 1, 5, 1, 1, null),
+    (13, 4, 2, 1, 'Write CRUD API for user', 'Write CRUD API for user in the backend', 0, null, NOW(), NOW(), 1, 5, 1, 1, null),
 
 
     -- Project 2
