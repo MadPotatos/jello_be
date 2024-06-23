@@ -39,7 +39,7 @@ export class UtilService {
           where: { id },
           data: { [type === 'list' ? 'listOrder' : 'sprintOrder']: newOrder },
         });
-
+        console.log('same is running' + dragged);
         return { toBeMoved, dragged };
       });
     } catch (err) {
@@ -53,32 +53,40 @@ export class UtilService {
     d: { dId, newOrder },
     type,
   }) {
-    const toBeUpdatedSource = this.updateOrder({
-      id: sId,
-      order,
-      issueType: 'source',
-      type,
-    });
-    const toBeUpdatedTarget = this.updateOrder({
-      id: dId,
-      order: newOrder,
-      issueType: 'target',
-      type,
-    });
+    const prisma = this.prisma;
 
-    const updatedIssue = await this.prisma.issue.update({
-      where: { id },
-      data: {
-        [type === 'list' ? 'listOrder' : 'sprintOrder']: newOrder,
-        [type === 'list' ? 'listId' : 'sprintId']: dId,
-      },
-    });
-    return Promise.all([toBeUpdatedSource, toBeUpdatedTarget]);
+    try {
+      await prisma.$transaction(async (tx) => {
+        await this.updateOrder({
+          tx,
+          id: sId,
+          order,
+          issueType: 'source',
+          type,
+        });
+        await this.updateOrder({
+          tx,
+          id: dId,
+          order: newOrder,
+          issueType: 'target',
+          type,
+        });
+        const updatedIssue = await tx.issue.update({
+          where: { id },
+          data: {
+            [type === 'list' ? 'listOrder' : 'sprintOrder']: newOrder,
+            [type === 'list' ? 'listId' : 'sprintId']: dId,
+          },
+        });
+      });
+    } catch (err) {
+      console.error(err);
+    }
   }
 
-  private async updateOrder({ id, order, issueType, type }) {
+  private async updateOrder({ tx, id, order, issueType, type }) {
     const isSource = issueType === 'source';
-    return this.prisma.issue.updateMany({
+    return tx.issue.updateMany({
       where: {
         [type === 'list' ? 'listId' : 'sprintId']: id,
         [type === 'list' ? 'listOrder' : 'sprintOrder']: {
