@@ -7,40 +7,36 @@ export class UtilService {
 
   async sameContainerReorder({ id, sId, order, newOrder, type }) {
     try {
-      const prisma = this.prisma;
+      await this.prisma.$transaction(async (tx) => {
+        const isMovingDown = newOrder > order;
 
-      await prisma.$transaction(async (tx) => {
-        const ste = newOrder > order;
-
-        const toBeMoved = await tx.issue.updateMany({
+        await tx.issue.updateMany({
           where: {
             [type === 'list' ? 'listId' : 'sprintId']: sId,
             AND: [
               {
                 [type === 'list' ? 'listOrder' : 'sprintOrder']: {
-                  [ste ? 'gt' : 'lt']: order,
+                  [isMovingDown ? 'gt' : 'lt']: order,
                 },
               },
               {
                 [type === 'list' ? 'listOrder' : 'sprintOrder']: {
-                  [ste ? 'lte' : 'gte']: newOrder,
+                  [isMovingDown ? 'lte' : 'gte']: newOrder,
                 },
               },
             ],
           },
           data: {
             [type === 'list' ? 'listOrder' : 'sprintOrder']: {
-              [ste ? 'decrement' : 'increment']: 1,
+              [isMovingDown ? 'decrement' : 'increment']: 1,
             },
           },
         });
 
-        const dragged = await tx.issue.update({
+        await tx.issue.update({
           where: { id },
           data: { [type === 'list' ? 'listOrder' : 'sprintOrder']: newOrder },
         });
-        console.log('same is running' + dragged);
-        return { toBeMoved, dragged };
       });
     } catch (err) {
       console.error(err);
@@ -53,25 +49,36 @@ export class UtilService {
     d: { dId, newOrder },
     type,
   }) {
-    const prisma = this.prisma;
-
     try {
-      await prisma.$transaction(async (tx) => {
-        await this.updateOrder({
-          tx,
-          id: sId,
-          order,
-          issueType: 'source',
-          type,
+      await this.prisma.$transaction(async (tx) => {
+        await tx.issue.updateMany({
+          where: {
+            [type === 'list' ? 'listId' : 'sprintId']: sId,
+            [type === 'list' ? 'listOrder' : 'sprintOrder']: {
+              gt: order,
+            },
+          },
+          data: {
+            [type === 'list' ? 'listOrder' : 'sprintOrder']: {
+              decrement: 1,
+            },
+          },
         });
-        await this.updateOrder({
-          tx,
-          id: dId,
-          order: newOrder,
-          issueType: 'target',
-          type,
+        await tx.issue.updateMany({
+          where: {
+            [type === 'list' ? 'listId' : 'sprintId']: dId,
+            [type === 'list' ? 'listOrder' : 'sprintOrder']: {
+              gte: newOrder,
+            },
+          },
+          data: {
+            [type === 'list' ? 'listOrder' : 'sprintOrder']: {
+              increment: 1,
+            },
+          },
         });
-        const updatedIssue = await tx.issue.update({
+
+        await tx.issue.update({
           where: { id },
           data: {
             [type === 'list' ? 'listOrder' : 'sprintOrder']: newOrder,
@@ -82,22 +89,5 @@ export class UtilService {
     } catch (err) {
       console.error(err);
     }
-  }
-
-  private async updateOrder({ tx, id, order, issueType, type }) {
-    const isSource = issueType === 'source';
-    return tx.issue.updateMany({
-      where: {
-        [type === 'list' ? 'listId' : 'sprintId']: id,
-        [type === 'list' ? 'listOrder' : 'sprintOrder']: {
-          [isSource ? 'gt' : 'gte']: order,
-        },
-      },
-      data: {
-        [type === 'list' ? 'listOrder' : 'sprintOrder']: {
-          [isSource ? 'decrement' : 'increment']: 1,
-        },
-      },
-    });
   }
 }
