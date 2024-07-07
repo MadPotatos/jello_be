@@ -22,26 +22,6 @@ export class CloudinaryService {
     });
   }
 
-  async uploadImageTmp(
-    file: Express.Multer.File,
-    uploadOptions: UploadApiOptions = {},
-  ): Promise<UploadApiResponse | UploadApiErrorResponse> {
-    return new Promise((resolve, reject) => {
-      const options = {
-        ...uploadOptions,
-        eager_async: true,
-        eager_notification_url: 'http://example.com/notify_endpoint',
-      };
-
-      const upload = v2.uploader.upload_stream(options, (error, result) => {
-        if (error) return reject(error);
-        resolve(result);
-      });
-
-      toStream(file.buffer).pipe(upload);
-    });
-  }
-
   async uploadImageToCloudinary(file: Express.Multer.File) {
     try {
       const imageUrl = await this.uploadImage(file).catch(() => {
@@ -51,49 +31,6 @@ export class CloudinaryService {
     } catch (error) {
       console.log(error);
       return { url: '', message: 'Upload failed.' };
-    }
-  }
-
-  async uploadImageToCloudinaryTmp(file: Express.Multer.File) {
-    try {
-      const uploadOptions = {
-        folder: 'tmp',
-        invalidate: true,
-        invalidate_after: 2 * 60 * 60,
-      };
-
-      const imageUrl = await this.uploadImageTmp(file, uploadOptions).catch(
-        () => {
-          throw new BadRequestException('Invalid file type.');
-        },
-      );
-      return {
-        url: imageUrl.url,
-        message: 'Upload success. Delete after 2 hours.',
-      };
-    } catch (error) {
-      console.log(error);
-      return {
-        message: 'Upload failed.',
-      };
-    }
-  }
-
-  async deleteImage(param): Promise<any> {
-    const { publicId } = param;
-    console.log(decodeURIComponent(publicId));
-
-    try {
-      const result = await v2.uploader.destroy(decodeURIComponent(publicId));
-      return {
-        result,
-        message: 'Delete image.',
-      };
-    } catch (error) {
-      console.error(error);
-      return {
-        message: 'Delete failed.',
-      };
     }
   }
 }

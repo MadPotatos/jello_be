@@ -1,8 +1,7 @@
 import { v2 } from 'cloudinary';
-import { CLOUDINARY } from './cloudinary.constant';
 
 export const CloudinaryProvider = {
-  provide: CLOUDINARY,
+  provide: 'Cloudinary',
   useFactory: () => {
     return v2.config({
       cloud_name: process.env.CLOUD_NAME,
