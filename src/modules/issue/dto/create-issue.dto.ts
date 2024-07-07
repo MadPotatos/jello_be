@@ -1,4 +1,11 @@
-import { IsNotEmpty, IsNumber, IsOptional, IsString } from 'class-validator';
+import { IssuePriority, IssueType } from '@prisma/client';
+import {
+  IsEnum,
+  IsNotEmpty,
+  IsNumber,
+  IsOptional,
+  IsString,
+} from 'class-validator';
 
 export class PostIssueDto {
   @IsNotEmpty()
@@ -22,14 +29,14 @@ export class PostIssueDto {
   projectId: number;
 
   @IsNotEmpty()
-  @IsNumber()
-  type: number;
+  @IsEnum(IssueType)
+  type: IssueType;
 
   @IsNotEmpty()
   @IsNumber()
   reporterId: number;
 
   @IsNotEmpty()
-  @IsNumber()
-  priority: number;
+  @IsEnum(IssuePriority)
+  priority: IssuePriority;
 }

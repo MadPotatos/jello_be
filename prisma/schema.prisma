@@ -86,8 +86,8 @@ model Issue {
   id            Int            @id @default(autoincrement())
   listOrder     Int?
   sprintOrder   Int?
-  priority      Int
-  type          Int
+  priority      IssuePriority
+  type          IssueType
   summary       String         @db.VarChar(100)
   descr         String?        @db.LongText
   progress      Int            @default(0)
@@ -141,6 +141,19 @@ model Notification {
   Project   Project?         @relation(fields: [projectId], references: [id], onDelete: Cascade)
   issueId   Int?
   Issue     Issue?           @relation(fields: [issueId], references: [id], onDelete: Cascade)
+}
+
+enum IssueType {
+  TASK
+  BUG
+  REVIEW
+  SUBISSUE
+}
+
+enum IssuePriority {
+  HIGH
+  MEDIUM
+  LOW
 }
 
 enum SprintStatus {
