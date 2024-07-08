@@ -1,6 +1,5 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../../prisma.service';
-import { UtilService } from '../../util.service';
 import { PostIssueDto } from './dto/create-issue.dto';
 import { NotificationType, SprintStatus } from '@prisma/client';
 import { NotificationService } from '../notification/notification.service';
@@ -9,7 +8,6 @@ import { NotificationService } from '../notification/notification.service';
 export class IssueService {
   constructor(
     private readonly prisma: PrismaService,
-    private readonly util: UtilService,
     private readonly notification: NotificationService,
   ) {}
 
@@ -266,15 +264,84 @@ export class IssueService {
         type,
       } = body;
 
-      await (sId === dId
-        ? this.util.sameContainerReorder({ id, sId, order, newOrder, type })
-        : this.util.diffContainerReorder(body));
-      return;
+      const field = type === 'list' ? 'listOrder' : 'sprintOrder';
+      const containerField = type === 'list' ? 'listId' : 'sprintId';
+
+      await this.prisma.$transaction(async (tx) => {
+        if (sId === dId) {
+          // Same container reordering
+          const isMovingDown = newOrder > order;
+
+          await tx.issue.updateMany({
+            where: {
+              [containerField]: sId,
+              AND: [
+                {
+                  [field]: {
+                    [isMovingDown ? 'gt' : 'lt']: order,
+                  },
+                },
+                {
+                  [field]: {
+                    [isMovingDown ? 'lte' : 'gte']: newOrder,
+                  },
+                },
+              ],
+            },
+            data: {
+              [field]: {
+                [isMovingDown ? 'decrement' : 'increment']: 1,
+              },
+            },
+          });
+
+          await tx.issue.update({
+            where: { id },
+            data: { [field]: newOrder },
+          });
+        } else {
+          // Different container reordering
+          await tx.issue.updateMany({
+            where: {
+              [containerField]: sId,
+              [field]: {
+                gt: order,
+              },
+            },
+            data: {
+              [field]: {
+                decrement: 1,
+              },
+            },
+          });
+
+          await tx.issue.updateMany({
+            where: {
+              [containerField]: dId,
+              [field]: {
+                gte: newOrder,
+              },
+            },
+            data: {
+              [field]: {
+                increment: 1,
+              },
+            },
+          });
+
+          await tx.issue.update({
+            where: { id },
+            data: {
+              [field]: newOrder,
+              [containerField]: dId,
+            },
+          });
+        }
+      });
     } catch (err) {
       console.log(err);
     }
   }
-
   async updatedAt(id: number) {
     return this.prisma.issue.update({
       where: { id },
