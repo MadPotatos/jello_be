@@ -1,9 +1,4 @@
-import {
-  UploadApiErrorResponse,
-  UploadApiResponse,
-  v2,
-  UploadApiOptions,
-} from 'cloudinary';
+import { UploadApiErrorResponse, UploadApiResponse, v2 } from 'cloudinary';
 import toStream = require('buffer-to-stream');
 import { Injectable, BadRequestException } from '@nestjs/common';
 

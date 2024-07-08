@@ -108,8 +108,8 @@ async function main() {
     VALUES
     -- Project 1 
     ('Backlog', 0, null, null, null, 'CREATED', NOW(), NOW(), 1),
-    ('Sprint 1', 1, NOW() - INTERVAL 1 MONTH, NOW(), 'Set up Structure for the Project', 'COMPLETED', NOW(), NOW(), 1),
-    ('Sprint 2', 2, NOW(), NOW() + INTERVAL 1 MONTH, 'Implement User Authentication', 'IN_PROGRESS', NOW(), NOW(), 1),
+    ('Sprint 1', 1, NOW() - INTERVAL 1 MONTH, NOW(), 'Set up Structure for the Project', 'IN_PROGRESS', NOW(), NOW(), 1),
+    ('Sprint 2', 2, NOW(), NOW() + INTERVAL 1 MONTH, 'Implement User Authentication', 'CREATED', NOW(), NOW(), 1),
     ('Sprint 3', 3, NOW() + INTERVAL 2 MONTH, NOW() + INTERVAL 3 MONTH, 'Implement basic CRUD API', 'CREATED', NOW(), NOW(), 1),
     ('Sprint 4', 4, NOW() + INTERVAL 3 MONTH, NOW() + INTERVAL 4 MONTH, 'Finalize UI Design', 'CREATED', NOW(), NOW(), 1),
 
