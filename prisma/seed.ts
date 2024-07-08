@@ -150,12 +150,12 @@ async function main() {
     INSERT INTO Issue (listOrder, sprintOrder, priority, type, summary, descr, progress, dueDate, createdAt, updatedAt, listId, sprintId, projectId, reporterId, parentId)
     VALUES
     -- Project 1 
-    (0, 0, 'HIGH', 'TASK', 'Set up NextJs', 'Set up NextJs for the project', 100, NOW() + INTERVAL 1 DAY, NOW(), NOW(), 3, 1, 1, 1, null),
-    (1, 1, 'HIGH', 'BUG', 'Create SQL schema', 'Create SQL schema for the project', 100, NOW() + INTERVAL 2 DAY, NOW(), NOW(), 3, 1, 1, 2, null),
-    (2, 2, 'MEDIUM', 'REVIEW', 'Develop the homepage', 'Develop the homepage with a simple design', 100, NOW() + INTERVAL 3 DAY, NOW(), NOW(), 3, 1, 1, 3, null),
-    (3, 3, 'HIGH', 'TASK', 'Set up NestJs', 'Set up NestJs for the project', 100, NOW() + INTERVAL 4 DAY, NOW(), NOW(), 3, 1, 1, 4, null),
-    (4, 4, 'MEDIUM', 'BUG', 'Fix the bug in the register page', 'The register page is not working properly', 100, NOW() + INTERVAL 5 DAY, NOW(), NOW(), 3, 1, 1, 5, null),
-    (5, 5, 'MEDIUM', 'REVIEW', 'Develop the dashboard', 'Develop the dashboard with a simple design', 100, NOW() + INTERVAL 6 DAY, NOW(), NOW(), 3, 1, 1, 6, null),
+    (0, 0, 'HIGH', 'TASK', 'Set up NextJs', 'Set up NextJs for the project', 100, NOW() + INTERVAL 1 DAY, NOW(), NOW(), 3, 2, 1, 1, null),
+    (1, 1, 'HIGH', 'BUG', 'Create SQL schema', 'Create SQL schema for the project', 100, NOW() + INTERVAL 2 DAY, NOW(), NOW(), 3, 2, 1, 2, null),
+    (2, 2, 'MEDIUM', 'REVIEW', 'Develop the homepage', 'Develop the homepage with a simple design', 100, NOW() + INTERVAL 3 DAY, NOW(), NOW(), 3, 2, 1, 3, null),
+    (3, 3, 'HIGH', 'TASK', 'Set up NestJs', 'Set up NestJs for the project', 100, NOW() + INTERVAL 4 DAY, NOW(), NOW(), 3, 2, 1, 4, null),
+    (4, 4, 'MEDIUM', 'BUG', 'Fix the bug in the register page', 'The register page is not working properly', 100, NOW() + INTERVAL 5 DAY, NOW(), NOW(), 3, 2, 1, 5, null),
+    (5, 5, 'MEDIUM', 'REVIEW', 'Develop the dashboard', 'Develop the dashboard with a simple design', 100, NOW() + INTERVAL 6 DAY, NOW(), NOW(), 3, 2, 1, 6, null),
     (0, 0, 'HIGH', 'TASK', 'Implement NextAuth', 'Implement NextAuth in frontend for the project', 50, NOW() + INTERVAL 1 DAY, NOW(), NOW(), 2, 3, 1, 1, null),
     (1, 1, 'HIGH', 'TASK', 'Handle user authentication', 'Handle user authentication in the backend', 50, NOW() + INTERVAL 1 DAY, NOW(), NOW(), 2, 3, 1, 1, null),
     (2, 2, 'MEDIUM', 'SUBISSUE', 'Test the login page', 'Test the login page with different scenarios',  50, NOW() + INTERVAL 1 DAY, NOW(), NOW(), 2, 3, 1, 1, 8),
