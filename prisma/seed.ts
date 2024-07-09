@@ -108,14 +108,14 @@ async function main() {
     VALUES
     -- Project 1 
     ('Backlog', 0, null, null, null, 'CREATED', NOW(), NOW(), 1),
-    ('Sprint 1', 1, NOW() - INTERVAL 1 MONTH, NOW(), 'Set up Structure for the Project', 'IN_PROGRESS', NOW(), NOW(), 1),
+    ('Sprint 1', 1, NOW() - INTERVAL 1 MONTH, NOW(), 'Set up Structure for the Project', 'CREATED', NOW(), NOW(), 1),
     ('Sprint 2', 2, NOW(), NOW() + INTERVAL 1 MONTH, 'Implement User Authentication', 'CREATED', NOW(), NOW(), 1),
     ('Sprint 3', 3, NOW() + INTERVAL 2 MONTH, NOW() + INTERVAL 3 MONTH, 'Implement basic CRUD API', 'CREATED', NOW(), NOW(), 1),
     ('Sprint 4', 4, NOW() + INTERVAL 3 MONTH, NOW() + INTERVAL 4 MONTH, 'Finalize UI Design', 'CREATED', NOW(), NOW(), 1),
 
     -- Project 2 
     ('Backlog', 0, null, null, null, 'CREATED', NOW(), NOW(), 2),
-    ('Sprint 1', 1, NOW(), NOW() + INTERVAL 1 MONTH, 'Thiết lập cấu trúc dự án', 'IN_PROGRESS', NOW(), NOW(), 2),
+    ('Sprint 1', 1, NOW(), NOW() + INTERVAL 1 MONTH, 'Thiết lập cấu trúc dự án', 'CREATED', NOW(), NOW(), 2),
     ('Sprint 2', 2, NOW() + INTERVAL 1 MONTH, NOW() + INTERVAL 2 MONTH, 'Tạo chức năng đăng nhập', 'CREATED', NOW(), NOW(), 2),
     ('Sprint 3', 3, NOW() + INTERVAL 2 MONTH, NOW() + INTERVAL 3 MONTH, 'Phát triển trang quản lý người dùng', 'CREATED', NOW(), NOW(), 2),
     ('Sprint 4', 4, NOW() + INTERVAL 3 MONTH, NOW() + INTERVAL 4 MONTH, 'Tích hợp hệ thống thông báo', 'CREATED', NOW(), NOW(), 2),
@@ -150,8 +150,8 @@ async function main() {
     INSERT INTO Issue (listOrder, sprintOrder, priority, type, summary, descr, progress, dueDate, createdAt, updatedAt, listId, sprintId, projectId, reporterId, parentId)
     VALUES
     -- Project 1 
-    (0, 0, 'HIGH', 'TASK', 'Set up NextJs', 'Set up NextJs for the project', 100, NOW() + INTERVAL 1 DAY, NOW(), NOW(), 3, 2, 1, 1, null),
-    (1, 1, 'HIGH', 'BUG', 'Create SQL schema', 'Create SQL schema for the project', 100, NOW() + INTERVAL 2 DAY, NOW(), NOW(), 3, 2, 1, 2, null),
+    (0, 0, 'HIGH', 'TASK', 'Set up NextJs', 'Set up NextJs for the project', 50, NOW() + INTERVAL 1 DAY, NOW(), NOW(), 3, 2, 1, 1, null),
+    (1, 1, 'HIGH', 'BUG', 'Create SQL schema', 'Create SQL schema for the project', 50, NOW() + INTERVAL 2 DAY, NOW(), NOW(), 3, 2, 1, 2, null),
     (2, 2, 'MEDIUM', 'REVIEW', 'Develop the homepage', 'Develop the homepage with a simple design', 100, NOW() + INTERVAL 3 DAY, NOW(), NOW(), 3, 2, 1, 3, null),
     (3, 3, 'HIGH', 'TASK', 'Set up NestJs', 'Set up NestJs for the project', 100, NOW() + INTERVAL 4 DAY, NOW(), NOW(), 3, 2, 1, 4, null),
     (4, 4, 'MEDIUM', 'BUG', 'Fix the bug in the register page', 'The register page is not working properly', 100, NOW() + INTERVAL 5 DAY, NOW(), NOW(), 3, 2, 1, 5, null),
