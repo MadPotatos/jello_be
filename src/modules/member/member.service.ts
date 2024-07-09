@@ -117,6 +117,13 @@ export class MemberService {
         },
       });
 
+      await this.prisma.notification.deleteMany({
+        where: {
+          projectId,
+          userId,
+        },
+      });
+
       await this.prisma.member.delete({
         where: { id: member.id },
       });
