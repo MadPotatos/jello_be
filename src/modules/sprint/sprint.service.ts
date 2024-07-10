@@ -1,5 +1,9 @@
-import { ConflictException, Injectable } from '@nestjs/common';
-import { NotificationType, SprintStatus } from '@prisma/client';
+import {
+  ConflictException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
+import { NotificationType, SprintStatus, StatusInSprint } from '@prisma/client';
 import { PrismaService } from 'src/prisma.service';
 import { V1Sprint } from './entities/get-sprint.entity';
 import { NotificationService } from '../notification/notification.service';
@@ -119,6 +123,7 @@ export class SprintService {
     const statusUpdate = data.status;
     const sprint = await this.prisma.sprint.findUnique({
       where: { id: +id },
+      include: { userStories: true },
     });
 
     if (statusUpdate && statusUpdate !== SprintStatus.CREATED) {
@@ -130,9 +135,46 @@ export class SprintService {
           },
         });
 
+        const firstList = await this.prisma.list.findFirst({
+          where: { projectId: sprint.projectId },
+          orderBy: { id: 'asc' },
+        });
+
         if (ongoingSprintsCount > 0) {
           throw new ConflictException("There's already an ongoing sprint");
         }
+
+        const currentListOrderCount = await this.prisma.issue.aggregate({
+          where: {
+            listId: firstList.id,
+            sprintId: id,
+          },
+          _count: true,
+        });
+
+        const listOrderIncrement = currentListOrderCount._count || 0;
+
+        const issues = await this.prisma.issue.updateMany({
+          where: {
+            sprintId: id,
+          },
+          data: {
+            statusInSprint: StatusInSprint.IN_SPRINT,
+            listId: firstList.id,
+            listOrder: { increment: listOrderIncrement + 1 },
+          },
+        });
+        console.log(issues);
+        await this.prisma.userStory.updateMany({
+          where: {
+            id: {
+              in: sprint.userStories.map((userStory) => userStory.id),
+            },
+          },
+          data: {
+            status: SprintStatus.IN_PROGRESS,
+          },
+        });
         const members = await this.prisma.member.findMany({
           where: { projectId: sprint.projectId },
         });
@@ -205,17 +247,23 @@ export class SprintService {
         },
         data: {
           sprintId: dId,
+          listId: null,
+          listOrder: null,
+          statusInSprint: null,
         },
       });
+
       const projectId = sprint.projectId;
       const members = await this.prisma.member.findMany({
         where: { projectId },
       });
+
       await this.notification.createNotification({
         type: NotificationType.SPRINT_COMPLETED,
         projectId: projectId,
         userIds: members.map((member) => member.userId),
       });
+
       return sprint;
     } catch (err) {
       console.error(err);

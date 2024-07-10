@@ -1,7 +1,12 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../../prisma.service';
 import { PostIssueDto } from './dto/create-issue.dto';
-import { IssueType, NotificationType, SprintStatus } from '@prisma/client';
+import {
+  IssueType,
+  NotificationType,
+  SprintStatus,
+  StatusInSprint,
+} from '@prisma/client';
 import { NotificationService } from '../notification/notification.service';
 
 @Injectable()
@@ -54,7 +59,7 @@ export class IssueService {
         orderBy: { order: 'asc' },
         include: {
           issues: {
-            where: { Sprint: { status: SprintStatus.IN_PROGRESS } },
+            //where: { Sprint: { status: SprintStatus.IN_PROGRESS } },
             orderBy: { listOrder: 'asc' },
             include: {
               assignees: {
@@ -158,7 +163,20 @@ export class IssueService {
     const { listId, sprintId } = body;
     let listOrder = 0;
     let sprintOrder = 0;
+    let sprintStatus: SprintStatus = SprintStatus.CREATED;
     try {
+      if (sprintId) {
+        const sprint = await this.prisma.sprint.findUnique({
+          where: { id: sprintId },
+          select: { status: true },
+        });
+
+        if (!sprint) {
+          throw new Error(`Sprint with id ${sprintId} not found`);
+        }
+
+        sprintStatus = sprint.status;
+      }
       if (listId) {
         const { _count: order } = await this.prisma.issue.aggregate({
           where: { listId: body.listId },
@@ -173,11 +191,19 @@ export class IssueService {
         });
         sprintOrder = Number(order);
       }
+      let issueStatus: StatusInSprint = StatusInSprint.IN_SPRINT_PLANNING;
+
+      if (sprintStatus === SprintStatus.IN_PROGRESS) {
+        issueStatus = StatusInSprint.IN_SPRINT;
+      }
       const issue = await this.prisma.issue.create({
         data: {
           ...body,
           ...(listId && { listOrder: Number(listOrder) }),
-          ...(sprintId && { sprintOrder: Number(sprintOrder) }),
+          ...(sprintId && {
+            sprintOrder: Number(sprintOrder),
+            statusInSprint: issueStatus,
+          }),
         },
       });
       return { ...issue, assignees: [], comments: 0 };
