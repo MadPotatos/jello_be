@@ -1,6 +1,15 @@
-import { Controller, Delete, Get, Param, Post } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  Post,
+  Put,
+} from '@nestjs/common';
 import { MemberService } from './member.service';
 import { GetMember, GetMemberList } from './entities/get-member.entity';
+import { Role } from '@prisma/client';
 
 @Controller('member')
 export class MemberController {
@@ -42,5 +51,30 @@ export class MemberController {
     @Param('userId') userId: number,
   ): Promise<any> {
     return await this.memberService.removeMember(projectId, userId);
+  }
+
+  @Put('role/:projectId/:userId')
+  async updateRole(
+    @Param('projectId') projectId: number,
+    @Param('userId') userId: number,
+    @Body('role') role: Role,
+  ): Promise<any> {
+    return await this.memberService.updateRole(projectId, userId, role);
+  }
+
+  @Get('/:role/:projectId')
+  async getMembersByRole(
+    @Param('projectId') projectId: number,
+    @Param('role') role: Role,
+  ): Promise<GetMemberList> {
+    return await this.memberService.getMemberByRole(projectId, role);
+  }
+
+  @Get('/checkRole/:projectId/:userId')
+  async checkRole(
+    @Param('projectId') projectId: number,
+    @Param('userId') userId: number,
+  ): Promise<any> {
+    return await this.memberService.checkRole(projectId, userId);
   }
 }

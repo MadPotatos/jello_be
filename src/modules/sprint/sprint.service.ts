@@ -3,7 +3,12 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { NotificationType, SprintStatus, StatusInSprint } from '@prisma/client';
+import {
+  NotificationType,
+  SprintStatus,
+  StatusInSprint,
+  UserStoryStatus,
+} from '@prisma/client';
 import { PrismaService } from 'src/prisma.service';
 import { V1Sprint } from './entities/get-sprint.entity';
 import { NotificationService } from '../notification/notification.service';
@@ -257,7 +262,14 @@ export class SprintService {
       const members = await this.prisma.member.findMany({
         where: { projectId },
       });
-
+      const userStories = await this.prisma.userStory.updateMany({
+        where: {
+          sprintId: +id,
+        },
+        data: {
+          status: UserStoryStatus.DONE,
+        },
+      });
       await this.notification.createNotification({
         type: NotificationType.SPRINT_COMPLETED,
         projectId: projectId,

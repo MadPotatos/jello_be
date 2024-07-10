@@ -78,6 +78,7 @@ model Member {
   projectId Int
   User      User?    @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId    Int
+  role      Role?
 }
 
 model List {
@@ -114,6 +115,7 @@ model Issue {
   priority       IssuePriority
   type           IssueType
   statusInSprint StatusInSprint?
+  assignRole     Role?
   summary        String          @db.VarChar(100)
   descr          String?         @db.LongText
   progress       Int             @default(0)
@@ -201,4 +203,11 @@ enum StatusInSprint {
   IN_SPRINT_PLANNING
   IN_SPRINT
   IN_SPRINT_REVIEW
+}
+
+enum Role {
+  SCRUM_MASTER
+  PRODUCT_OWNER
+  DEVELOPER
+  TESTER
 }

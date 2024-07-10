@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma.service';
 import { GetMember, GetMemberList } from './entities/get-member.entity';
-import { NotificationType } from '@prisma/client';
+import { NotificationType, Role } from '@prisma/client';
 import { NotificationService } from '../notification/notification.service';
 
 @Injectable()
@@ -28,6 +28,7 @@ export class MemberService {
       email: leaderInfo.User.email,
       avatar: leaderInfo.User.avatar,
       isAdmin: leaderInfo.isAdmin,
+      role: leaderInfo.role,
     };
   }
 
@@ -37,6 +38,7 @@ export class MemberService {
         projectId,
         userId,
         isAdmin: true,
+        role: Role.SCRUM_MASTER,
       },
     });
   }
@@ -55,6 +57,7 @@ export class MemberService {
         email: member.User.email,
         avatar: member.User.avatar,
         isAdmin: member.isAdmin,
+        role: member.role,
       })),
       total: members.length,
     };
@@ -136,5 +139,56 @@ export class MemberService {
       console.log(err);
       throw new Error('Failed to remove member');
     }
+  }
+
+  async updateRole(
+    projectId: number,
+    userId: number,
+    role: Role,
+  ): Promise<any> {
+    try {
+      const member = await this.prisma.member.findFirst({
+        where: { projectId, userId },
+      });
+      if (!member) {
+        throw new Error('Member not found in the project');
+      }
+      return await this.prisma.member.update({
+        where: { id: member.id },
+        data: { role },
+      });
+    } catch (err) {
+      console.log(err);
+      throw new Error('Failed to update role');
+    }
+  }
+
+  async getMemberByRole(projectId: number, role: Role): Promise<GetMemberList> {
+    const rawMembers = await this.prisma.member.findMany({
+      where: { projectId, role },
+      include: { User: true },
+    });
+    return {
+      members: rawMembers.map((member) => ({
+        projectId: member.projectId,
+        userId: member.userId,
+        name: member.User.name,
+        email: member.User.email,
+        avatar: member.User.avatar,
+        isAdmin: member.isAdmin,
+        role: member.role,
+      })),
+      total: rawMembers.length,
+    };
+  }
+
+  async checkRole(projectId: number, userId: number): Promise<any> {
+    const member = await this.prisma.member.findFirst({
+      where: { projectId, userId },
+    });
+    if (!member) {
+      throw new Error('Member not found in the project');
+    }
+    return member;
   }
 }

@@ -1,5 +1,12 @@
+import { Role } from '@prisma/client';
 import { Type } from 'class-transformer';
-import { IsBoolean, IsEmail, IsNumber, IsString } from 'class-validator';
+import {
+  IsBoolean,
+  IsEmail,
+  IsEnum,
+  IsNumber,
+  IsString,
+} from 'class-validator';
 
 export class GetMember {
   @IsNumber()
@@ -20,6 +27,9 @@ export class GetMember {
 
   @IsBoolean()
   isAdmin: boolean;
+
+  @IsEnum(Role)
+  role: Role;
 }
 
 export class GetMemberList {
