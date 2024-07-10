@@ -11,28 +11,44 @@ export class SprintService {
     private notification: NotificationService,
   ) {}
 
-  async getSprintsInProject(projectId: number): Promise<V1Sprint[]> {
+  async getSprintsInProject(projectId: number) {
     try {
       const rawSprintData = await this.prisma.sprint.findMany({
         where: {
           projectId: +projectId,
           NOT: { status: SprintStatus.COMPLETED },
         },
+        include: {
+          userStories: {
+            select: {
+              id: true,
+              title: true,
+              point: true,
+            },
+          },
+        },
       });
-      const sprints: V1Sprint[] = await Promise.all(
-        rawSprintData.map(async (sprint) => {
-          return {
-            id: sprint.id,
-            name: sprint.name,
-            goal: sprint.goal,
-            order: sprint.order,
-            startDate: sprint.startDate,
-            endDate: sprint.endDate,
-            createdAt: sprint.createdAt,
-            status: sprint.status,
-          };
-        }),
-      );
+
+      const sprints = rawSprintData.map((sprint) => {
+        const totalPoints = sprint.userStories.reduce(
+          (acc, userStory) => acc + (userStory.point || 0),
+          0,
+        );
+
+        return {
+          id: sprint.id,
+          name: sprint.name,
+          goal: sprint.goal,
+          order: sprint.order,
+          startDate: sprint.startDate,
+          endDate: sprint.endDate,
+          createdAt: sprint.createdAt,
+          status: sprint.status,
+          userStories: sprint.userStories,
+          totalUserStoryPoints: totalPoints,
+        };
+      });
+
       return sprints;
     } catch (err) {
       console.log(err);

@@ -36,4 +36,24 @@ export class UserStoryController {
   async deleteUserStory(@Param('id') id: number) {
     return await this.userStoryService.deleteUserStory(id);
   }
+
+  @Get('not-done/:projectId')
+  async getNotDoneUserStoriesByProjectId(
+    @Param('projectId') projectId: number,
+  ) {
+    return await this.userStoryService.getNotDoneUserStoriesByProjectId(
+      projectId,
+    );
+  }
+
+  @Put(':id/sprint/:sprintId')
+  async addUserStoryToSprint(
+    @Param('id') userStoryId: number,
+    @Param('sprintId') sprintId: number,
+  ) {
+    return await this.userStoryService.addUserStoryToSprint(
+      sprintId,
+      userStoryId,
+    );
+  }
 }

@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import { UserStoryStatus } from '@prisma/client';
 import { PrismaService } from 'src/prisma.service';
 
 @Injectable()
@@ -33,5 +34,25 @@ export class UserStoryService {
 
   async deleteUserStory(id: number) {
     return await this.prisma.userStory.delete({ where: { id } });
+  }
+
+  async getNotDoneUserStoriesByProjectId(projectId: number) {
+    return await this.prisma.userStory.findMany({
+      where: {
+        projectId,
+        status: {
+          not: UserStoryStatus.DONE,
+        },
+      },
+    });
+  }
+
+  async addUserStoryToSprint(sprintId: number, userStoryId: number) {
+    return await this.prisma.userStory.update({
+      where: { id: userStoryId },
+      data: {
+        sprintId,
+      },
+    });
   }
 }
