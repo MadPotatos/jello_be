@@ -68,4 +68,17 @@ export class IssueController {
   async createTask(@Body() body: any) {
     return this.issueService.createTask(body);
   }
+
+  @Get('/user-story/not-in-sprint/:id')
+  async getIssuesNotInSprint(@Param('id') id: number) {
+    return this.issueService.getTaskByUserStorythatNotHaveSprint(id);
+  }
+
+  @Put('sprint/:id/:sprintId')
+  async addIssueToSprint(
+    @Param('id') id: number,
+    @Param('sprintId') sprintId: number,
+  ) {
+    return this.issueService.addTaskInUserStorytoSprint(id, sprintId);
+  }
 }

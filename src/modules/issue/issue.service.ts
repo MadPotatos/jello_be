@@ -394,4 +394,27 @@ export class IssueService {
   async createTask(data: any) {
     return await this.prisma.issue.create({ data });
   }
+
+  async getTaskByUserStorythatNotHaveSprint(userStoryId: number) {
+    return await this.prisma.issue.findMany({
+      where: {
+        userStoryId,
+        sprintId: null,
+      },
+    });
+  }
+
+  async addTaskInUserStorytoSprint(id: number, sprintId: number) {
+    let sprintOrder = 0;
+    const { _count: order } = await this.prisma.issue.aggregate({
+      where: { sprintId },
+      _count: true,
+    });
+    sprintOrder = Number(order);
+
+    return await this.prisma.issue.update({
+      where: { id },
+      data: { sprintId, sprintOrder },
+    });
+  }
 }

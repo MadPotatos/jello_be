@@ -108,33 +108,34 @@ model Sprint {
 }
 
 model Issue {
-  id            Int            @id @default(autoincrement())
-  listOrder     Int?
-  sprintOrder   Int?
-  priority      IssuePriority
-  type          IssueType
-  summary       String         @db.VarChar(100)
-  descr         String?        @db.LongText
-  progress      Int            @default(0)
-  dueDate       DateTime?
-  createdAt     DateTime       @default(now())
-  updatedAt     DateTime       @default(now()) @updatedAt
-  List          List?          @relation(fields: [listId], references: [id], onDelete: Cascade)
-  listId        Int?
-  Sprint        Sprint?        @relation(fields: [sprintId], references: [id], onDelete: Cascade)
-  sprintId      Int?
-  Project       Project?       @relation(fields: [projectId], references: [id], onDelete: Cascade)
-  projectId     Int
-  userStoryId   Int?
-  UserStory     UserStory?     @relation(fields: [userStoryId], references: [id], onDelete: Cascade)
-  User          User?          @relation(fields: [reporterId], references: [id], onDelete: Cascade)
-  reporterId    Int
-  parentId      Int?
-  parentIssue   Issue?         @relation("IssueSubIssues", fields: [parentId], references: [id], onDelete: Cascade)
-  comments      Comment[]
-  assignees     Assignee[]
-  notifications Notification[]
-  children      Issue[]        @relation("IssueSubIssues")
+  id             Int             @id @default(autoincrement())
+  listOrder      Int?
+  sprintOrder    Int?
+  priority       IssuePriority
+  type           IssueType
+  statusInSprint StatusInSprint?
+  summary        String          @db.VarChar(100)
+  descr          String?         @db.LongText
+  progress       Int             @default(0)
+  dueDate        DateTime?
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @default(now()) @updatedAt
+  List           List?           @relation(fields: [listId], references: [id], onDelete: Cascade)
+  listId         Int?
+  Sprint         Sprint?         @relation(fields: [sprintId], references: [id], onDelete: Cascade)
+  sprintId       Int?
+  Project        Project?        @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  projectId      Int
+  userStoryId    Int?
+  UserStory      UserStory?      @relation(fields: [userStoryId], references: [id], onDelete: Cascade)
+  User           User?           @relation(fields: [reporterId], references: [id], onDelete: Cascade)
+  reporterId     Int
+  parentId       Int?
+  parentIssue    Issue?          @relation("IssueSubIssues", fields: [parentId], references: [id], onDelete: Cascade)
+  comments       Comment[]
+  assignees      Assignee[]
+  notifications  Notification[]
+  children       Issue[]         @relation("IssueSubIssues")
 }
 
 model Assignee {
@@ -194,4 +195,10 @@ enum NotificationType {
   PROJECT_INVITE
   SPRINT_STARTED
   SPRINT_COMPLETED
+}
+
+enum StatusInSprint {
+  IN_SPRINT_PLANNING
+  IN_SPRINT
+  IN_SPRINT_REVIEW
 }
