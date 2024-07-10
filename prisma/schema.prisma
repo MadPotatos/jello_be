@@ -44,6 +44,30 @@ model Project {
   notifications Notification[]
   issues        Issue[]
   isDeleted     Boolean        @default(false)
+  productGoal   String?
+  userStories   UserStory[]
+}
+
+model UserStory {
+  id          Int             @id @default(autoincrement())
+  title       String          @db.VarChar(100)
+  description String?         @db.VarChar(255)
+  status      UserStoryStatus @default(TO_DO)
+  priority    IssuePriority
+  point       Int
+  projectId   Int
+  project     Project?        @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @default(now()) @updatedAt
+  Sprint      Sprint?         @relation(fields: [sprintId], references: [id], onDelete: Cascade)
+  sprintId    Int?
+  tasks       Issue[]
+}
+
+enum UserStoryStatus {
+  TO_DO
+  IN_PROGRESS
+  DONE
 }
 
 model Member {
@@ -68,18 +92,19 @@ model List {
 }
 
 model Sprint {
-  id        Int          @id @default(autoincrement())
-  name      String       @db.VarChar(50)
-  order     Int
-  startDate DateTime?
-  endDate   DateTime?
-  goal      String?      @db.VarChar(200)
-  status    SprintStatus
-  createdAt DateTime     @default(now())
-  updatedAt DateTime     @default(now()) @updatedAt
-  Project   Project?     @relation(fields: [projectId], references: [id], onDelete: Cascade)
-  projectId Int
-  issues    Issue[]
+  id          Int          @id @default(autoincrement())
+  name        String       @db.VarChar(50)
+  order       Int
+  startDate   DateTime?
+  endDate     DateTime?
+  goal        String?      @db.VarChar(200)
+  status      SprintStatus
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @default(now()) @updatedAt
+  Project     Project?     @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  projectId   Int
+  issues      Issue[]
+  userStories UserStory[]
 }
 
 model Issue {
@@ -100,6 +125,8 @@ model Issue {
   sprintId      Int?
   Project       Project?       @relation(fields: [projectId], references: [id], onDelete: Cascade)
   projectId     Int
+  userStoryId   Int?
+  UserStory     UserStory?     @relation(fields: [userStoryId], references: [id], onDelete: Cascade)
   User          User?          @relation(fields: [reporterId], references: [id], onDelete: Cascade)
   reporterId    Int
   parentId      Int?

@@ -24,6 +24,10 @@ export class PostIssueDto {
   @IsNumber()
   listId: number;
 
+  @IsOptional()
+  @IsNumber()
+  userStoryId: number;
+
   @IsNotEmpty()
   @IsNumber()
   projectId: number;

@@ -15,6 +15,7 @@ import { RepositoryModule } from './modules/repo/repo.module';
 import { SprintModule } from './modules/sprint/sprint.module';
 import { NotificationModule } from './modules/notification/notification.module';
 import { ScheduleModule } from '@nestjs/schedule';
+import { UserStoryModule } from './modules/user_story/user_story.module';
 
 @Module({
   imports: [
@@ -32,6 +33,7 @@ import { ScheduleModule } from '@nestjs/schedule';
     RepositoryModule,
     SprintModule,
     NotificationModule,
+    UserStoryModule,
     ScheduleModule.forRoot(),
   ],
   controllers: [AppController],

@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../../prisma.service';
 import { PostIssueDto } from './dto/create-issue.dto';
-import { NotificationType, SprintStatus } from '@prisma/client';
+import { IssueType, NotificationType, SprintStatus } from '@prisma/client';
 import { NotificationService } from '../notification/notification.service';
 
 @Injectable()
@@ -389,5 +389,9 @@ export class IssueService {
       console.error(err);
       return { success: false, error: 'Failed to delete issue' };
     }
+  }
+
+  async createTask(data: any) {
+    return await this.prisma.issue.create({ data });
   }
 }

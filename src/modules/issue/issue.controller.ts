@@ -63,4 +63,9 @@ export class IssueController {
   async updateIssues(@Param('id') id: number) {
     return this.issueService.updatedAt(id);
   }
+
+  @Post('task')
+  async createTask(@Body() body: any) {
+    return this.issueService.createTask(body);
+  }
 }

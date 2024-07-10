@@ -1,0 +1,2 @@
+-- AlterTable
+ALTER TABLE `Issue` MODIFY `type` ENUM('TASK', 'BUG', 'REVIEW', 'SUBISSUE') NOT NULL;
