@@ -84,16 +84,40 @@ export class SprintService {
     }
   }
 
-  async getCurrentSprint(projectId: number): Promise<V1Sprint> {
+  async getCurrentSprint(projectId: number) {
     try {
       const sprint = await this.prisma.sprint.findFirst({
         where: {
           projectId: projectId,
           status: SprintStatus.IN_PROGRESS,
         },
+        include: {
+          userStories: {
+            select: {
+              id: true,
+              title: true,
+              point: true,
+            },
+          },
+        },
       });
+      const totalPoints = sprint.userStories.reduce(
+        (acc, userStory) => acc + (userStory.point || 0),
+        0,
+      );
 
-      return sprint;
+      return {
+        id: sprint.id,
+        name: sprint.name,
+        goal: sprint.goal,
+        order: sprint.order,
+        startDate: sprint.startDate,
+        endDate: sprint.endDate,
+        createdAt: sprint.createdAt,
+        status: sprint.status,
+        userStories: sprint.userStories,
+        totalUserStoryPoints: totalPoints,
+      };
     } catch (err) {
       console.error(err);
       throw err;
