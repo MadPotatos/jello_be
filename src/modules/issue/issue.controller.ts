@@ -81,4 +81,20 @@ export class IssueController {
   ) {
     return this.issueService.addTaskInUserStorytoSprint(id, sprintId);
   }
+
+  @Get('/assigned/:projectId/:userId')
+  async getAssignedIssues(
+    @Param('projectId') projectId: number,
+    @Param('userId') userId: number,
+  ) {
+    return await this.issueService.findAssignedIssuesInProject(
+      projectId,
+      userId,
+    );
+  }
+
+  @Get('/all-issues-and-user-story/:projectId')
+  async getAllIssuesAndUserStory(@Param('projectId') projectId: number) {
+    return await this.issueService.getAllIssuesAndUserStories(projectId);
+  }
 }
