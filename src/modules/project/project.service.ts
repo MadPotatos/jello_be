@@ -73,6 +73,7 @@ export class ProjectService {
       description: rawData.descr,
       repo: rawData.repo,
       image: rawData.image,
+      productGoal: rawData.productGoal,
       isDeleted: rawData.isDeleted,
       createdAt: rawData.createdAt,
       updatedAt: rawData.updatedAt,
@@ -147,6 +148,7 @@ export class ProjectService {
         name: body.name,
         descr: body.descr,
         repo: body.repo,
+        productGoal: body.productGoal,
       },
     });
     if (!project) {
