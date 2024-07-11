@@ -15,6 +15,9 @@ export class V1ProjectDetail {
   repo: string;
 
   @IsString()
+  productGoal: string;
+
+  @IsString()
   image: string;
 
   @IsBoolean()
