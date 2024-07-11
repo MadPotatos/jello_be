@@ -28,6 +28,9 @@ export class RepositoryService {
     });
 
     const { owner, repo } = await this.getOwnerAndRepoFromUrl(repoUrl);
+    if (!owner || !repo) {
+      return;
+    }
 
     try {
       const rawPullRequests = await octokit.pulls.list({
