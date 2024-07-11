@@ -440,7 +440,11 @@ export class IssueService {
 
     return await this.prisma.issue.update({
       where: { id },
-      data: { sprintId, sprintOrder },
+      data: {
+        sprintId,
+        sprintOrder,
+        statusInSprint: StatusInSprint.IN_SPRINT_PLANNING,
+      },
     });
   }
 

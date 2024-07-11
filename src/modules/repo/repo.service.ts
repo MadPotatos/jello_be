@@ -1,8 +1,6 @@
 import { ConflictException, Injectable } from '@nestjs/common';
 import { Octokit } from '@octokit/rest';
-import { V1PullRequest } from './entities/get-pull-requests-list.entity';
 import { PrismaService } from 'src/prisma.service';
-import { V1RepoDetail } from './entities/get-repo-detail.entity';
 import { Cron } from '@nestjs/schedule';
 import { IssuePriority, IssueType } from '@prisma/client';
 
@@ -10,7 +8,7 @@ import { IssuePriority, IssueType } from '@prisma/client';
 export class RepositoryService {
   constructor(private prisma: PrismaService) {}
 
-  @Cron('*/1 * * * *') // Check for new pull requests every 1 minutes
+  @Cron('*/1 * * * *') // Check for new pull requests every 1 minute
   async checkForNewPullRequests() {
     const projects = await this.prisma.project.findMany({
       where: { isDeleted: false },
@@ -52,7 +50,11 @@ export class RepositoryService {
         }
       }
     } catch (error) {
-      console.log(error);
+      if (error.status === 404) {
+        console.error(`Repository not found: ${repoUrl}`);
+      } else {
+        console.error(`Failed to fetch pull requests for ${repoUrl}:`, error);
+      }
     }
   }
 
@@ -96,7 +98,7 @@ export class RepositoryService {
     });
   }
 
-  async getPullRequests(id: number): Promise<V1PullRequest[]> {
+  async getPullRequests(id: number) {
     const octokit = new Octokit({
       auth: process.env.GITHUB_ACCESS_TOKEN,
     });
@@ -133,7 +135,7 @@ export class RepositoryService {
     }
   }
 
-  async getRepositoryInfo(id: number): Promise<V1RepoDetail> {
+  async getRepositoryInfo(id: number) {
     const project = await this.prisma.project.findUnique({
       where: { id },
       select: { repo: true },
