@@ -3,10 +3,89 @@ import { Octokit } from '@octokit/rest';
 import { V1PullRequest } from './entities/get-pull-requests-list.entity';
 import { PrismaService } from 'src/prisma.service';
 import { V1RepoDetail } from './entities/get-repo-detail.entity';
+import { Cron } from '@nestjs/schedule';
+import { IssuePriority, IssueType } from '@prisma/client';
 
 @Injectable()
 export class RepositoryService {
   constructor(private prisma: PrismaService) {}
+
+  @Cron('*/1 * * * *') // Check for new pull requests every 1 minutes
+  async checkForNewPullRequests() {
+    const projects = await this.prisma.project.findMany({
+      where: { isDeleted: false },
+      select: { id: true, repo: true },
+    });
+
+    for (const project of projects) {
+      await this.processPullRequests(project.id, project.repo);
+    }
+  }
+
+  private async processPullRequests(projectId: number, repoUrl: string) {
+    const octokit = new Octokit({
+      auth: process.env.GITHUB_ACCESS_TOKEN,
+    });
+
+    const { owner, repo } = await this.getOwnerAndRepoFromUrl(repoUrl);
+
+    try {
+      const rawPullRequests = await octokit.pulls.list({
+        owner,
+        repo,
+      });
+
+      for (const pullRequest of rawPullRequests.data) {
+        const description = `New pull request: ${pullRequest.title}`;
+        const existingIssue = await this.prisma.issue.findFirst({
+          where: {
+            projectId,
+            descr: { startsWith: description },
+          },
+        });
+
+        if (!existingIssue) {
+          await this.createIssueFromPullRequest(projectId, pullRequest);
+        }
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
+  private async createIssueFromPullRequest(
+    projectId: number,
+    pullRequest: any,
+  ) {
+    const firstList = await this.prisma.list.findFirst({
+      where: { projectId },
+      orderBy: { order: 'asc' },
+    });
+
+    if (!firstList) {
+      throw new Error('No list found for the project');
+    }
+
+    const highestOrderIssue = await this.prisma.issue.findFirst({
+      where: { listId: firstList.id },
+      orderBy: { listOrder: 'desc' },
+    });
+
+    const newOrder = highestOrderIssue ? highestOrderIssue.listOrder + 1 : 1;
+
+    await this.prisma.issue.create({
+      data: {
+        summary: pullRequest.title,
+        descr: `New pull request: ${pullRequest.title} - ${pullRequest.html_url}`,
+        listId: firstList.id ?? undefined,
+        listOrder: newOrder,
+        priority: IssuePriority.MEDIUM,
+        type: IssueType.REVIEW,
+        projectId,
+        reporterId: 1,
+      },
+    });
+  }
 
   async getPullRequests(id: number): Promise<V1PullRequest[]> {
     const octokit = new Octokit({
@@ -80,7 +159,6 @@ export class RepositoryService {
       console.log(error);
     }
   }
-  async testing() {}
 
   private async getOwnerAndRepoFromUrl(url: string) {
     const regex =
