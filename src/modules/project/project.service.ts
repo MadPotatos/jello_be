@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, ConflictException } from '@nestjs/common';
 import { PrismaService } from 'src/prisma.service';
 import { MemberService } from '../member/member.service';
 import { V1Project, V1ProjectsList } from './entities/get-projects-list.entity';
@@ -40,7 +40,6 @@ export class ProjectService {
   async getDeletedProjectsByUserId(userId: number): Promise<V1ProjectsList> {
     const projectsRaw = await this.prisma.project.findMany({
       where: { members: { some: { userId, isAdmin: true } }, isDeleted: true },
-
       orderBy: { createdAt: 'desc' },
     });
     const projects: V1Project[] = await Promise.all(
@@ -81,6 +80,15 @@ export class ProjectService {
   }
 
   async createProject(body: PostProjectDto) {
+    // Check if the repository URL already exists
+    const existingProject = await this.prisma.project.findUnique({
+      where: { repo: body.repo },
+    });
+
+    if (existingProject) {
+      throw new ConflictException('Repository URL already exists');
+    }
+
     const project = await this.prisma.project.create({
       data: {
         name: body.name,
@@ -90,6 +98,7 @@ export class ProjectService {
         userId: body.userId,
       },
     });
+
     await this.member.addAdminToProject(project.id, body.userId);
     if (!project) {
       return null;
@@ -118,6 +127,20 @@ export class ProjectService {
   }
 
   async updateProject(id: number, body: any) {
+    // Check if the new repository URL already exists for another project
+    if (body.repo) {
+      const existingProject = await this.prisma.project.findFirst({
+        where: {
+          repo: body.repo,
+          id: { not: id },
+        },
+      });
+
+      if (existingProject) {
+        throw new ConflictException('Repository URL already exists');
+      }
+    }
+
     const project = await this.prisma.project.update({
       where: { id },
       data: {
