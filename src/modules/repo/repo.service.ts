@@ -73,10 +73,16 @@ export class RepositoryService {
 
     const newOrder = highestOrderIssue ? highestOrderIssue.listOrder + 1 : 1;
 
+    const descriptionHtml = `
+      <h3>${pullRequest.title}</h3>
+      <p>From: ${pullRequest.user.login}</p>
+      <a href="${pullRequest.html_url}" target="_blank">View Pull Request</a>
+    `;
+
     await this.prisma.issue.create({
       data: {
         summary: pullRequest.title,
-        descr: `New pull request: ${pullRequest.title} - ${pullRequest.html_url}`,
+        descr: descriptionHtml,
         listId: firstList.id ?? undefined,
         listOrder: newOrder,
         priority: IssuePriority.MEDIUM,
