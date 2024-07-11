@@ -443,4 +443,51 @@ export class IssueService {
       data: { sprintId, sprintOrder },
     });
   }
+
+  async findAssignedIssuesInProject(projectId: number, userId: number) {
+    const issues = await this.prisma.issue.findMany({
+      where: { projectId, assignees: { some: { userId } } },
+    });
+
+    const todoCount = issues.filter((issue) => issue.progress === 0).length;
+    const inProgressCount = issues.filter(
+      (issue) => issue.progress > 0 && issue.progress < 100,
+    ).length;
+    const doneCount = issues.filter((issue) => issue.progress === 100).length;
+
+    return {
+      todo: todoCount,
+      inProgress: inProgressCount,
+      done: doneCount,
+    };
+  }
+  async getAllIssuesAndUserStories(projectId: number) {
+    try {
+      const issues = await this.prisma.issue.findMany({
+        where: { projectId },
+      });
+
+      const userStories = await this.prisma.userStory.findMany({
+        where: { projectId },
+      });
+      const issueCounts = {
+        total: issues.length + userStories.length,
+        totalBugs: issues.filter((issue) => issue.type === IssueType.BUG)
+          .length,
+        totalReviews: issues.filter((issue) => issue.type === IssueType.REVIEW)
+          .length,
+        totalTasks: issues.filter((issue) => issue.type === IssueType.TASK)
+          .length,
+        totalSubtasks: issues.filter(
+          (issue) => issue.type === IssueType.SUBISSUE,
+        ).length,
+        totalUserStories: userStories.length,
+      };
+
+      return issueCounts;
+    } catch (err) {
+      console.error('Error fetching issues and user stories:', err);
+      throw new Error('Failed to fetch issues and user stories');
+    }
+  }
 }
