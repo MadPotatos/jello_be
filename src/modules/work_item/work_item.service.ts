@@ -159,7 +159,7 @@ export class WorkItemService {
     }
   }
 
-  async createworkItem(body: PostIssueDto) {
+  async createworkItem(body: any) {
     const { listId, sprintId } = body;
     let listOrder = 0;
     let sprintOrder = 0;

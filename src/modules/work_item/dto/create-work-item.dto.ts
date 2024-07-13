@@ -29,16 +29,8 @@ export class PostIssueDto {
   userStoryId: number;
 
   @IsNotEmpty()
-  @IsNumber()
-  projectId: number;
-
-  @IsNotEmpty()
   @IsEnum(Type)
   type: Type;
-
-  @IsNotEmpty()
-  @IsNumber()
-  reporterId: number;
 
   @IsNotEmpty()
   @IsEnum(Priority)

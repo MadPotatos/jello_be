@@ -20,7 +20,7 @@ export class NotificationService {
               data: {
                 type: notificationData.type,
                 projectId: notificationData.projectId,
-                workItemId: notificationData.issueId,
+                workItemId: notificationData.workItemId,
                 userId: userId,
               },
             });
