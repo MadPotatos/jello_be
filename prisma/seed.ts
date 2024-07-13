@@ -10,7 +10,7 @@ async function main() {
   await prisma.$executeRaw`TRUNCATE TABLE Notification;`;
   await prisma.$executeRaw`TRUNCATE TABLE Comment;`;
   await prisma.$executeRaw`TRUNCATE TABLE Assignee;`;
-  await prisma.$executeRaw`TRUNCATE TABLE Issue;`;
+  await prisma.$executeRaw`TRUNCATE TABLE WorkItem;`;
   await prisma.$executeRaw`TRUNCATE TABLE Sprint;`;
   await prisma.$executeRaw`TRUNCATE TABLE List;`;
   await prisma.$executeRaw`TRUNCATE TABLE Member;`;

@@ -1,4 +1,4 @@
-import { IssuePriority, IssueType } from '@prisma/client';
+import { Priority, Type } from '@prisma/client';
 import {
   IsEnum,
   IsNotEmpty,
@@ -33,14 +33,14 @@ export class PostIssueDto {
   projectId: number;
 
   @IsNotEmpty()
-  @IsEnum(IssueType)
-  type: IssueType;
+  @IsEnum(Type)
+  type: Type;
 
   @IsNotEmpty()
   @IsNumber()
   reporterId: number;
 
   @IsNotEmpty()
-  @IsEnum(IssuePriority)
-  priority: IssuePriority;
+  @IsEnum(Priority)
+  priority: Priority;
 }

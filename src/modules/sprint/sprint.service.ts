@@ -115,7 +115,7 @@ export class SprintService {
         endDate: sprint.endDate,
         createdAt: sprint.createdAt,
         status: sprint.status,
-        userStories: sprint.userStories,
+        userStories: sprint.userStories || [],
         totalUserStoryPoints: totalPoints,
       };
     } catch (err) {
@@ -164,36 +164,44 @@ export class SprintService {
           },
         });
 
+        if (ongoingSprintsCount > 0) {
+          throw new ConflictException("There's already an ongoing sprint");
+        }
+
         const firstList = await this.prisma.list.findFirst({
           where: { projectId: sprint.projectId },
           orderBy: { id: 'asc' },
         });
 
-        if (ongoingSprintsCount > 0) {
-          throw new ConflictException("There's already an ongoing sprint");
+        const maxListOrderResult = await this.prisma.workItem.aggregate({
+          where: {
+            listId: firstList.id,
+            sprintId: id,
+          },
+          _max: {
+            listOrder: true,
+          },
+        });
+
+        const maxListOrder = maxListOrderResult._max.listOrder ?? -1;
+
+        const workItems = await this.prisma.workItem.findMany({
+          where: {
+            sprintId: id,
+          },
+        });
+
+        for (let i = 0; i < workItems.length; i++) {
+          await this.prisma.workItem.update({
+            where: { id: workItems[i].id },
+            data: {
+              statusInSprint: StatusInSprint.IN_SPRINT,
+              listId: firstList.id,
+              listOrder: maxListOrder + i + 1,
+            },
+          });
         }
 
-        const currentListOrderCount = await this.prisma.issue.aggregate({
-          where: {
-            listId: firstList.id,
-            sprintId: id,
-          },
-          _count: true,
-        });
-
-        const listOrderIncrement = currentListOrderCount._count || 0;
-
-        const issues = await this.prisma.issue.updateMany({
-          where: {
-            sprintId: id,
-          },
-          data: {
-            statusInSprint: StatusInSprint.IN_SPRINT,
-            listId: firstList.id,
-            listOrder: { increment: listOrderIncrement + 1 },
-          },
-        });
-        console.log(issues);
         await this.prisma.userStory.updateMany({
           where: {
             id: {
@@ -204,6 +212,7 @@ export class SprintService {
             status: SprintStatus.IN_PROGRESS,
           },
         });
+
         const members = await this.prisma.member.findMany({
           where: { projectId: sprint.projectId },
         });
@@ -270,7 +279,16 @@ export class SprintService {
         },
       });
 
-      const issues = await this.prisma.issue.updateMany({
+      const maxOrder = await this.prisma.workItem.aggregate({
+        where: { sprintId: dId },
+        _max: {
+          sprintOrder: true,
+        },
+      });
+
+      const initialOrder = maxOrder._max.sprintOrder ?? -1;
+
+      const issues = await this.prisma.workItem.updateMany({
         where: {
           sprintId: +id,
         },
@@ -279,6 +297,7 @@ export class SprintService {
           listId: null,
           listOrder: null,
           statusInSprint: null,
+          sprintOrder: { increment: initialOrder + 1 },
         },
       });
 

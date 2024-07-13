@@ -10,7 +10,7 @@ export class CommentService {
   async getComments(issueId: number): Promise<V1Comment[]> {
     try {
       const cmts = await this.prisma.comment.findMany({
-        where: { issueId: +issueId },
+        where: { workItemId: +issueId },
         include: { User: { select: { name: true, avatar: true } } },
       });
       const rawData = cmts.map(({ User, ...d }) => ({ ...d, ...User }));
@@ -35,7 +35,10 @@ export class CommentService {
 
   async createComment(data: PostCommentDto) {
     try {
-      const cmt = await this.prisma.comment.create({ data });
+      const { descr, issueId, userId } = data;
+      const cmt = await this.prisma.comment.create({
+        data: { descr, workItemId: issueId, userId },
+      });
       const User = await this.prisma.user.findUnique({
         where: { id: cmt.userId },
         select: { name: true, avatar: true },

@@ -20,7 +20,7 @@ export class NotificationService {
               data: {
                 type: notificationData.type,
                 projectId: notificationData.projectId,
-                issueId: notificationData.issueId,
+                workItemId: notificationData.issueId,
                 userId: userId,
               },
             });
@@ -58,7 +58,7 @@ export class NotificationService {
               image: true,
             },
           },
-          Issue: {
+          WorkItems: {
             select: {
               summary: true,
             },
