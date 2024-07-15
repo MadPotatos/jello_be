@@ -37,11 +37,11 @@ export class RepositoryService {
       });
 
       for (const pullRequest of rawPullRequests.data) {
-        const description = `New pull request: ${pullRequest.title}`;
+        const title = pullRequest.title;
         const existingIssue = await this.prisma.workItem.findFirst({
           where: {
             projectId,
-            descr: { startsWith: description },
+            summary: title,
           },
         });
 

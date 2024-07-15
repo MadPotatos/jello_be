@@ -93,7 +93,7 @@ export class WorkItemController {
     );
   }
 
-  @Get('/all-workItems-and-user-story/:projectId')
+  @Get('/all-issues-and-user-story/:projectId')
   async getAllworkItemsAndUserStory(@Param('projectId') projectId: number) {
     return await this.workItemService.getAllworkItemsAndUserStories(projectId);
   }
