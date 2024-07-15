@@ -81,13 +81,14 @@ export class ProjectService {
   }
 
   async createProject(body: PostProjectDto) {
-    // Check if the repository URL already exists
-    const existingProject = await this.prisma.project.findUnique({
-      where: { repo: body.repo },
-    });
+    if (body.repo) {
+      const existingProject = await this.prisma.project.findUnique({
+        where: { repo: body.repo },
+      });
 
-    if (existingProject) {
-      throw new ConflictException('Repository URL already exists');
+      if (existingProject) {
+        throw new ConflictException('Repository URL already exists');
+      }
     }
 
     const project = await this.prisma.project.create({
@@ -96,7 +97,6 @@ export class ProjectService {
         descr: body.description,
         repo: body.repo,
         image: body.image,
-        userId: body.userId,
       },
     });
 

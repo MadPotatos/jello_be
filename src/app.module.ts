@@ -9,13 +9,14 @@ import { ProjectModule } from './modules/project/project.module';
 import { MemberModule } from './modules/member/member.module';
 import { CloudinaryModule } from './modules/cloudinary/cloudinary.module';
 import { ListModule } from './modules/list/list.module';
-import { IssueModule } from './modules/issue/issue.module';
+
 import { CommentModule } from './modules/comment/comment.module';
 import { RepositoryModule } from './modules/repo/repo.module';
 import { SprintModule } from './modules/sprint/sprint.module';
 import { NotificationModule } from './modules/notification/notification.module';
 import { ScheduleModule } from '@nestjs/schedule';
 import { UserStoryModule } from './modules/user_story/user_story.module';
+import { WorkItemModule } from './modules/work_item/work_item.module';
 
 @Module({
   imports: [
@@ -26,7 +27,7 @@ import { UserStoryModule } from './modules/user_story/user_story.module';
     ProjectModule,
     MemberModule,
     ListModule,
-    IssueModule,
+    WorkItemModule,
     CommentModule,
     AuthModule,
     CloudinaryModule,

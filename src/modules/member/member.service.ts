@@ -107,7 +107,7 @@ export class MemberService {
         throw new Error('Member not found in the project');
       }
 
-      const issues = await this.prisma.issue.findMany({
+      const issues = await this.prisma.workItem.findMany({
         where: { projectId },
       });
 
@@ -115,7 +115,7 @@ export class MemberService {
 
       await this.prisma.assignee.deleteMany({
         where: {
-          issueId: { in: issueIds },
+          workItemId: { in: issueIds },
           userId,
         },
       });

@@ -2,7 +2,7 @@ import { ConflictException, Injectable } from '@nestjs/common';
 import { Octokit } from '@octokit/rest';
 import { PrismaService } from 'src/prisma.service';
 import { Cron } from '@nestjs/schedule';
-import { IssuePriority, IssueType } from '@prisma/client';
+import { Priority, Type } from '@prisma/client';
 
 @Injectable()
 export class RepositoryService {
@@ -37,11 +37,11 @@ export class RepositoryService {
       });
 
       for (const pullRequest of rawPullRequests.data) {
-        const description = `New pull request: ${pullRequest.title}`;
-        const existingIssue = await this.prisma.issue.findFirst({
+        const title = pullRequest.title;
+        const existingIssue = await this.prisma.workItem.findFirst({
           where: {
             projectId,
-            descr: { startsWith: description },
+            summary: title,
           },
         });
 
@@ -71,7 +71,7 @@ export class RepositoryService {
       throw new Error('No list found for the project');
     }
 
-    const highestOrderIssue = await this.prisma.issue.findFirst({
+    const highestOrderIssue = await this.prisma.workItem.findFirst({
       where: { listId: firstList.id },
       orderBy: { listOrder: 'desc' },
     });
@@ -84,16 +84,15 @@ export class RepositoryService {
       <a href="${pullRequest.html_url}" target="_blank">View Pull Request</a>
     `;
 
-    await this.prisma.issue.create({
+    await this.prisma.workItem.create({
       data: {
         summary: pullRequest.title,
         descr: descriptionHtml,
         listId: firstList.id ?? undefined,
         listOrder: newOrder,
-        priority: IssuePriority.MEDIUM,
-        type: IssueType.REVIEW,
+        priority: Priority.MEDIUM,
+        type: Type.REVIEW,
         projectId,
-        reporterId: 1,
       },
     });
   }

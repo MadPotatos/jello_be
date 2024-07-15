@@ -1,4 +1,4 @@
-import { IssuePriority, IssueType } from '@prisma/client';
+import { Priority, Type } from '@prisma/client';
 import { IsDate, IsEnum, IsNumber, IsString } from 'class-validator';
 
 export class V1Issue {
@@ -11,11 +11,11 @@ export class V1Issue {
   @IsNumber()
   order: number;
 
-  @IsEnum(IssuePriority)
-  priority: IssuePriority;
+  @IsEnum(Priority)
+  priority: Priority;
 
-  @IsEnum(IssueType)
-  type: IssueType;
+  @IsEnum(Type)
+  type: Type;
 
   @IsString()
   summary: string;

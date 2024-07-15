@@ -1,24 +1,24 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../../prisma.service';
-import { PostIssueDto } from './dto/create-issue.dto';
+import { PostIssueDto } from './dto/create-work-item.dto';
 import {
-  IssueType,
   NotificationType,
   SprintStatus,
   StatusInSprint,
+  Type,
 } from '@prisma/client';
 import { NotificationService } from '../notification/notification.service';
 
 @Injectable()
-export class IssueService {
+export class WorkItemService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly notification: NotificationService,
   ) {}
 
-  async getAllIssuesByProject(projectId: number) {
+  async getAllworkItemsByProject(projectId: number) {
     try {
-      const issues = await this.prisma.issue.findMany({
+      const workItems = await this.prisma.workItem.findMany({
         where: {
           projectId: +projectId,
         },
@@ -36,29 +36,26 @@ export class IssueService {
           Sprint: {
             select: { name: true },
           },
-          User: {
-            select: { name: true, avatar: true },
-          },
         },
         orderBy: { createdAt: 'asc' },
       });
-      return issues;
+      return workItems;
     } catch (err) {
       console.log(err);
     }
   }
 
-  async getIssuesByListInProject(projectId: number) {
+  async getworkItemsByListInProject(projectId: number) {
     try {
-      const issueWhereClause = {
+      const workItemWhereClause = {
         Sprint: { status: SprintStatus.IN_PROGRESS },
       };
 
-      const listIssues = await this.prisma.list.findMany({
+      const listworkItems = await this.prisma.list.findMany({
         where: { projectId: +projectId },
         orderBy: { order: 'asc' },
         include: {
-          issues: {
+          workitems: {
             //where: { Sprint: { status: SprintStatus.IN_PROGRESS } },
             orderBy: { listOrder: 'asc' },
             include: {
@@ -77,30 +74,33 @@ export class IssueService {
         },
       });
 
-      const issues = listIssues.reduce(
-        (acc, { id, issues }) => ({
+      const workitems = listworkItems.reduce(
+        (acc, { id, workitems }) => ({
           ...acc,
-          [id]: issues.map(({ _count, ...issue }) => ({ ...issue, ..._count })),
+          [id]: workitems.map(({ _count, ...workItem }) => ({
+            ...workItem,
+            ..._count,
+          })),
         }),
         {},
       );
 
-      return issues;
+      return workitems;
     } catch (err) {
-      console.error('Error fetching issues:', err);
-      throw new Error('Failed to fetch issues');
+      console.error('Error fetching workItems:', err);
+      throw new Error('Failed to fetch workItems');
     }
   }
 
-  async getIssuesBySprintInProject(projectId: number) {
+  async getworkItemsBySprintInProject(projectId: number) {
     try {
-      const listIssues = await this.prisma.sprint.findMany({
+      const listworkItems = await this.prisma.sprint.findMany({
         where: {
           projectId: +projectId,
           NOT: { status: SprintStatus.COMPLETED },
         },
         include: {
-          issues: {
+          workitems: {
             orderBy: { sprintOrder: 'asc' },
             include: {
               assignees: {
@@ -122,26 +122,26 @@ export class IssueService {
           },
         },
       });
-      const issues = listIssues.reduce(
-        (p, { id, issues }) => ({
+      const workitems = listworkItems.reduce(
+        (p, { id, workitems }) => ({
           ...p,
-          [id]: issues.map(({ _count, ...issue }) => ({
-            ...issue,
+          [id]: workitems.map(({ _count, ...workItem }) => ({
+            ...workItem,
             ..._count,
           })),
         }),
         {},
       );
-      return issues;
+      return workitems;
     } catch (err) {
       console.log(err);
     }
   }
 
-  async getSubIssuesByIssue(issueId: number) {
+  async getSubworkItemsByworkItem(workItemId: number) {
     try {
-      const subIssues = await this.prisma.issue.findMany({
-        where: { parentId: +issueId },
+      const subworkItems = await this.prisma.workItem.findMany({
+        where: { parentId: +workItemId },
         orderBy: { createdAt: 'asc' },
         include: {
           assignees: {
@@ -153,13 +153,13 @@ export class IssueService {
           },
         },
       });
-      return subIssues;
+      return subworkItems;
     } catch (err) {
       console.log(err);
     }
   }
 
-  async createIssue(body: PostIssueDto) {
+  async createworkItem(body: any) {
     const { listId, sprintId } = body;
     let listOrder = 0;
     let sprintOrder = 0;
@@ -178,54 +178,54 @@ export class IssueService {
         sprintStatus = sprint.status;
       }
       if (listId) {
-        const { _count: order } = await this.prisma.issue.aggregate({
+        const { _count: order } = await this.prisma.workItem.aggregate({
           where: { listId: body.listId },
           _count: true,
         });
         listOrder = Number(order);
       }
       if (sprintId) {
-        const { _count: order } = await this.prisma.issue.aggregate({
+        const { _count: order } = await this.prisma.workItem.aggregate({
           where: { sprintId: body.sprintId },
           _count: true,
         });
         sprintOrder = Number(order);
       }
-      let issueStatus: StatusInSprint = StatusInSprint.IN_SPRINT_PLANNING;
+      let workItemStatus: StatusInSprint = StatusInSprint.IN_SPRINT_PLANNING;
 
       if (sprintStatus === SprintStatus.IN_PROGRESS) {
-        issueStatus = StatusInSprint.IN_SPRINT;
+        workItemStatus = StatusInSprint.IN_SPRINT;
       }
-      const issue = await this.prisma.issue.create({
+      const workItem = await this.prisma.workItem.create({
         data: {
           ...body,
           ...(listId && { listOrder: Number(listOrder) }),
           ...(sprintId && {
             sprintOrder: Number(sprintOrder),
-            statusInSprint: issueStatus,
+            statusInSprint: workItemStatus,
           }),
         },
       });
-      return { ...issue, assignees: [], comments: 0 };
+      return { ...workItem, assignees: [], comments: 0 };
     } catch (err) {
       console.log(err);
     }
   }
 
-  async updateIssue(id: number, body: any) {
+  async updateworkItem(id: number, body: any) {
     try {
       const { type, value, projectId } = body;
-      const issue = await this.prisma.issue.findUnique({
+      const workItem = await this.prisma.workItem.findUnique({
         where: { id: +id },
       });
 
       switch (type) {
         case 'listId':
-          const { _count: order } = await this.prisma.issue.aggregate({
+          const { _count: order } = await this.prisma.workItem.aggregate({
             where: { listId: value },
             _count: true,
           });
-          await this.prisma.issue.update({
+          await this.prisma.workItem.update({
             where: { id },
             data: { [type]: value, listOrder: Number(order) + 1 },
           });
@@ -233,18 +233,18 @@ export class IssueService {
         case 'addAssignee':
           const existingAssigneesBeforeDelete =
             await this.prisma.assignee.findMany({
-              where: { issueId: id },
+              where: { workItemId: id },
               select: { userId: true },
             });
-          await this.prisma.assignee.deleteMany({ where: { issueId: id } });
+          await this.prisma.assignee.deleteMany({ where: { workItemId: id } });
 
           await this.prisma.assignee.createMany({
-            data: value.map((userId) => ({ issueId: id, userId })),
+            data: value.map((userId) => ({ workItemId: id, userId })),
           });
 
           const existingAssigneesAfterAdd = await this.prisma.assignee.findMany(
             {
-              where: { issueId: id },
+              where: { workItemId: id },
               select: { userId: true },
             },
           );
@@ -260,7 +260,7 @@ export class IssueService {
               await this.notification.createNotification({
                 userIds: [assignee.userId],
                 projectId,
-                issueId: id,
+                workItemId: id,
                 type: NotificationType.ASSIGNED_TO_ISSUE,
               });
             }),
@@ -269,7 +269,7 @@ export class IssueService {
           break;
 
         default:
-          await this.prisma.issue.update({
+          await this.prisma.workItem.update({
             where: { id },
             data: { [type]: value },
           });
@@ -281,7 +281,7 @@ export class IssueService {
     }
   }
 
-  async reorderIssues(body: any) {
+  async reorderworkItems(body: any) {
     try {
       const {
         id,
@@ -298,7 +298,7 @@ export class IssueService {
           // Same container reordering
           const isMovingDown = newOrder > order;
 
-          await tx.issue.updateMany({
+          await tx.workItem.updateMany({
             where: {
               [containerField]: sId,
               AND: [
@@ -321,13 +321,13 @@ export class IssueService {
             },
           });
 
-          await tx.issue.update({
+          await tx.workItem.update({
             where: { id },
             data: { [field]: newOrder },
           });
         } else {
           // Different container reordering
-          await tx.issue.updateMany({
+          await tx.workItem.updateMany({
             where: {
               [containerField]: sId,
               [field]: {
@@ -341,7 +341,7 @@ export class IssueService {
             },
           });
 
-          await tx.issue.updateMany({
+          await tx.workItem.updateMany({
             where: {
               [containerField]: dId,
               [field]: {
@@ -355,7 +355,7 @@ export class IssueService {
             },
           });
 
-          await tx.issue.update({
+          await tx.workItem.update({
             where: { id },
             data: {
               [field]: newOrder,
@@ -369,34 +369,34 @@ export class IssueService {
     }
   }
   async updatedAt(id: number) {
-    return this.prisma.issue.update({
+    return this.prisma.workItem.update({
       where: { id },
       data: { updatedAt: new Date(Date.now()).toISOString() },
     });
   }
 
-  async deleteIssue(id: number) {
+  async deleteworkItem(id: number) {
     try {
-      const issueToDelete = await this.prisma.issue.findUnique({
+      const workItemToDelete = await this.prisma.workItem.findUnique({
         where: { id: +id },
         select: { listOrder: true, listId: true },
       });
 
-      if (!issueToDelete) {
-        throw new Error('Issue not found');
+      if (!workItemToDelete) {
+        throw new Error('workItem not found');
       }
 
-      const orderToDelete = issueToDelete.listOrder;
-      const listId = issueToDelete.listId;
+      const orderToDelete = workItemToDelete.listOrder;
+      const listId = workItemToDelete.listId;
 
       await this.prisma.notification.deleteMany({
         where: {
-          issueId: +id,
+          workItemId: +id,
         },
       });
 
-      await this.prisma.issue.delete({ where: { id: +id } });
-      await this.prisma.issue.updateMany({
+      await this.prisma.workItem.delete({ where: { id: +id } });
+      await this.prisma.workItem.updateMany({
         where: {
           listOrder: {
             gte: orderToDelete,
@@ -413,16 +413,16 @@ export class IssueService {
       return { success: true };
     } catch (err) {
       console.error(err);
-      return { success: false, error: 'Failed to delete issue' };
+      return { success: false, error: 'Failed to delete workItem' };
     }
   }
 
   async createTask(data: any) {
-    return await this.prisma.issue.create({ data });
+    return await this.prisma.workItem.create({ data });
   }
 
   async getTaskByUserStorythatNotHaveSprint(userStoryId: number) {
-    return await this.prisma.issue.findMany({
+    return await this.prisma.workItem.findMany({
       where: {
         userStoryId,
         sprintId: null,
@@ -432,13 +432,13 @@ export class IssueService {
 
   async addTaskInUserStorytoSprint(id: number, sprintId: number) {
     let sprintOrder = 0;
-    const { _count: order } = await this.prisma.issue.aggregate({
+    const { _count: order } = await this.prisma.workItem.aggregate({
       where: { sprintId },
       _count: true,
     });
     sprintOrder = Number(order);
 
-    return await this.prisma.issue.update({
+    return await this.prisma.workItem.update({
       where: { id },
       data: {
         sprintId,
@@ -448,16 +448,20 @@ export class IssueService {
     });
   }
 
-  async findAssignedIssuesInProject(projectId: number, userId: number) {
-    const issues = await this.prisma.issue.findMany({
+  async findAssignedworkItemsInProject(projectId: number, userId: number) {
+    const workItems = await this.prisma.workItem.findMany({
       where: { projectId, assignees: { some: { userId } } },
     });
 
-    const todoCount = issues.filter((issue) => issue.progress === 0).length;
-    const inProgressCount = issues.filter(
-      (issue) => issue.progress > 0 && issue.progress < 100,
+    const todoCount = workItems.filter(
+      (workItem) => workItem.progress === 0,
     ).length;
-    const doneCount = issues.filter((issue) => issue.progress === 100).length;
+    const inProgressCount = workItems.filter(
+      (workItem) => workItem.progress > 0 && workItem.progress < 100,
+    ).length;
+    const doneCount = workItems.filter(
+      (workItem) => workItem.progress === 100,
+    ).length;
 
     return {
       todo: todoCount,
@@ -465,33 +469,34 @@ export class IssueService {
       done: doneCount,
     };
   }
-  async getAllIssuesAndUserStories(projectId: number) {
+  async getAllworkItemsAndUserStories(projectId: number) {
     try {
-      const issues = await this.prisma.issue.findMany({
+      const workItems = await this.prisma.workItem.findMany({
         where: { projectId },
       });
 
       const userStories = await this.prisma.userStory.findMany({
         where: { projectId },
       });
-      const issueCounts = {
-        total: issues.length + userStories.length,
-        totalBugs: issues.filter((issue) => issue.type === IssueType.BUG)
+      const workItemCounts = {
+        total: workItems.length + userStories.length,
+        totalBugs: workItems.filter((workItem) => workItem.type === Type.BUG)
           .length,
-        totalReviews: issues.filter((issue) => issue.type === IssueType.REVIEW)
+        totalReviews: workItems.filter(
+          (workItem) => workItem.type === Type.REVIEW,
+        ).length,
+        totalTasks: workItems.filter((workItem) => workItem.type === Type.TASK)
           .length,
-        totalTasks: issues.filter((issue) => issue.type === IssueType.TASK)
-          .length,
-        totalSubtasks: issues.filter(
-          (issue) => issue.type === IssueType.SUBISSUE,
+        totalSubtasks: workItems.filter(
+          (workItem) => workItem.type === Type.SUBISSUE,
         ).length,
         totalUserStories: userStories.length,
       };
 
-      return issueCounts;
+      return workItemCounts;
     } catch (err) {
-      console.error('Error fetching issues and user stories:', err);
-      throw new Error('Failed to fetch issues and user stories');
+      console.error('Error fetching workItems and user stories:', err);
+      throw new Error('Failed to fetch workItems and user stories');
     }
   }
 }
